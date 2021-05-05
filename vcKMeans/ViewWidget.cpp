@@ -1,5 +1,6 @@
 #include "ViewWidget.h"
 
+#include <QApplication>
 #include <QOpenGLShaderProgram>
 #include <QPainter>
 #include <QtMath>
@@ -22,9 +23,10 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
 //  samplePointsGenteration();
 
-  dataGeneration(100, 2);
+  dataGeneration(100, 2); // ( samplePerCluster, dimension)
+  qDebug() << "Data loaded.";
 
-  qDebug() << width() << height() << m_points.length();
+  doKmeans(4); // ( K )
 
   m_fpsTimer.start();
 }
@@ -102,7 +104,7 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
     QVector<float> pointND4;
     for (int i=0; i<dim; ++i){
       pointND1.append(distribution1(engine));
-      pointND2.append(distribution2(engine)+150);
+      pointND2.append(distribution2(engine) + 150);
       pointND3.append(distribution3(engine) - 100);
       pointND4.append(distribution4(engine) + 100);
     }
@@ -129,6 +131,105 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
 
     count++;
   }
+  m_totalSample = samplesPerCluster*4;
+}
+
+void ViewWidget::initialCenters(int initialize_type)
+{
+  /*
+   * Initialization centers
+   *  distance type:
+   *    1 - random real:    any real number x, y location for the seed within the sample space
+   *    2 - random sample:  randomly select one of the observations
+   *    3 - K-Means++ distance based (D^2) careful seeding
+   */
+
+  if (initialize_type < 1 || initialize_type > 3){
+    qDebug() << "ERROR: Please select initialize_type in range 1-3";
+    qDebug() << "Program terminated...";
+    QApplication::exec();
+  }
+
+  if (initialize_type == 1) {
+    // 1 - random real:    any real number x, y location for the seed within the sample space
+    // TODO: implement random real
+
+  }
+
+  if (initialize_type == 2) {
+    // 2 - random sample:  randomly select one of the observations
+    for (int i=0; i<m_k; ++i){
+      int idx = rand() % m_totalSample-1;
+      qDebug() << m_points.mid(idx*3, 3);
+      m_centers.append(m_points.mid(idx, 3));
+    }
+//    qDebug() << m_centers;
+
+  }
+
+  if (initialize_type == 3) {
+    // 3 - K-Means++ distance based (D^2) careful seeding
+    // TODO: implement K-Means++
+
+  }
+}
+
+void ViewWidget::find_closest(QVector<float> point, QVector<float> centers, int distance_type)
+{
+  /*
+   *  compare the distance between point and each center and return the closest center
+   *
+   *  distance type:
+   *    1 - L1 norm
+   *    2 - L2 norm
+   *    3 - L-infinity norm
+   */
+  if (distance_type < 1 || distance_type > 3){
+    qDebug() << "ERROR: Please select distance_type in range 1-3";
+    QApplication::exec();
+  }
+
+  QVector<float> dists;
+
+  for (int i=0; i<m_totalSample; ++i){
+    float dist {0.0};
+    QVector<float> center = m_points.mid(i*3, 3);
+    center -= point;
+
+    if (distance_type == 1){
+      // https://montjoile.medium.com/l0-norm-l1-norm-l2-norm-l-infinity-norm-7a7d18a4f40c#:~:text=Also%20known%20as%20Manhattan%20Distance,the%20components%20of%20the%20vectors.
+      dist = center.rx() + center.ry();
+    }
+
+    if (distance_type == 2){
+      dist = qSqrt(qPow(center.rx(), 2) + qPow(center.ry(), 2));
+    }
+
+    if (distance_type == 3) {
+      dist = qMax(center.rx(), center.ry());
+    }
+
+    dists.append(dist);
+  }
+
+  // return the index of minimum distance.
+  return dists.indexOf(*std::min_element(dists.constBegin(), dists.constEnd()));
+}
+
+void ViewWidget::doKmeans(int k)
+{
+  qDebug() << "Start to seperate to" << k << "clusters!";
+
+  // set number of cluster
+  m_k = k;
+
+  //
+  // K-Means Algorithm
+
+  // Initial centers
+  initialCenters(2);
+  qDebug() << m_points;
+  qDebug() << "Centers initialized.";
 }
 
 void ViewWidget::initializeGL()
