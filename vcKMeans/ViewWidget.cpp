@@ -7,15 +7,38 @@
 #include <chrono>
 #include <random>
 
+#include <QDebug>
+
+
 ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(parent, f)
 {
   auto turntableTimer = new QTimer(this);
   turntableTimer->callOnTimeout(this, &ViewWidget::updateTurntable);
 
-  turntableTimer->start(1000.0/1.0); // 30 ms
+  // control the fps
+  turntableTimer->start(1000.0/60.0); // 30 ms
 
   m_elapsedTimer.start();
 
+//  samplePointsGenteration();
+
+  dataGeneration(100, 2);
+
+  qDebug() << width() << height() << m_points.length();
+
+  m_fpsTimer.start();
+}
+
+float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
+{
+  float millisecondsPerRotation {secondsPerRotation*1000.0f};
+  float t {msTime/millisecondsPerRotation};
+
+  return (t-qFloor(t)) * 360.0f;
+}
+
+void ViewWidget::samplePointsGenteration()
+{
   // Create random 3D points
   int samples {10000};
 
@@ -48,22 +71,69 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
       count++;
     }
   }
-
-  m_fpsTimer.start();
 }
 
-float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
+void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
 {
-  float millisecondsPerRotation {secondsPerRotation*1000.0f};
-  float t {msTime/millisecondsPerRotation};
+  if (dim > 2) {
+    m_spin = true;
+  } else {
+    m_spin = false;
+  }
 
-  return (t-qFloor(t)) * 360.0f;
+  // Get seed from clock
+  long seed {std::chrono::system_clock::now().time_since_epoch().count()};
+
+  // Seed engine and set random distribution to [-1, 1]
+  std::default_random_engine engine(seed);
+  std::normal_distribution<float> distribution1(50.0f, 50.0f);
+  std::normal_distribution<float> distribution2(100.0f, 50.0f);
+  std::normal_distribution<float> distribution3(140.0f, 60.0f);
+  std::normal_distribution<float> distribution4(10.0f, 50.0f);
+
+  // Create points inside a sphere
+  int count {0};
+  while (count < samplesPerCluster) {
+    // Uniformly sample cube
+
+    QVector<float> pointND1;
+    QVector<float> pointND2;
+    QVector<float> pointND3;
+    QVector<float> pointND4;
+    for (int i=0; i<dim; ++i){
+      pointND1.append(distribution1(engine));
+      pointND2.append(distribution2(engine)+150);
+      pointND3.append(distribution3(engine) - 100);
+      pointND4.append(distribution4(engine) + 100);
+    }
+
+    // Adjust the position of points
+    pointND2[0] += 200;
+    pointND3[1] += 300;
+    pointND3[0] += 200;
+    pointND4[0] += 250;
+
+    if (dim == 2){
+      pointND1.append(0.0f);
+      pointND2.append(0.0f);
+      pointND3.append(0.0f);
+      pointND4.append(0.0f);
+    }
+    m_points.append(pointND1);
+    m_points.append(pointND2);
+    m_points.append(pointND3);
+    m_points.append(pointND4);
+    for (int i=0; i<4; ++i){
+      m_colors.append({0, 0, 0});
+    }
+
+    count++;
+  }
 }
 
 void ViewWidget::initializeGL()
 {
   initializeOpenGLFunctions();
-
   glClearColor(0.2, 0.2, 0.2, 0.1);
 
 //  glDepthFunc(GL_LEQUAL); // this change to " if (z = D(i,j)) "
@@ -94,28 +164,6 @@ void ViewWidget::initializeGL()
   m_pointProgram.link();
 }
 
-//
-// Return interleaved xyz points for polygon centered at x, y, z with given
-// radius and number of sides
-//
-QVector<GLfloat> createPolygon(float x, float y, float z, float radius,
-                               int sides)
-{
-  QVector<GLfloat> result;
-
-  float angle = -M_PI_2;
-  float step = 2.0f * M_PI/sides;
-
-  for(int i = 0; i < sides; ++i)
-  {
-    result.push_back(x + radius * qCos(angle));
-    result.push_back(y + radius * qSin(angle));
-    result.push_back(z);
-    angle += step;
-  }
-
-  return result;
-}
 
 void ViewWidget::paintGL() {
   glEnable(GL_DEPTH_TEST);
@@ -141,12 +189,6 @@ void ViewWidget::paintGL() {
   int matrixLocation = program.uniformLocation("matrix");
   int colorLocation = program.uniformLocation("color");
 
-  static GLfloat const triangleVertices[] = {
-    60.0f,  10.0f,  1.0f,
-    110.0f, 110.0f, 10.0f,
-    10.0f,  110.0f, 50.0f
-  };
-
 
   //
   // Set eye position
@@ -154,14 +196,17 @@ void ViewWidget::paintGL() {
   QMatrix4x4 pmvMatrix;
 //  pmvMatrix.ortho(rect());
 //  pmvMatrix.ortho(-width()/2.0, width()/2.0, height()/2.0, -height()/2.0, -1, 1);
-  pmvMatrix.perspective(40.0f, float(width())/height(), 1.0f, 10000.0f);
-  pmvMatrix.lookAt({0, 8, 4}, {0, 0, 0}, {0, 1, 0});
-  pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 15), {0.0f, 1.0f, 0.0f});
+  pmvMatrix.perspective(440.0f, float(width())/height(), 1.0f, 10000.0f);
+
+  if (m_spin) {
+    pmvMatrix.lookAt({255, 255, 500}, {200, 100, 0}, {0, 1, 0});
+    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 15), {0.5f, 1.0f, 0.5f});
+  } else {
+    pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
+  }
+
 
   program.setUniformValue(matrixLocation, pmvMatrix);
-
-
-
 
   m_pointProgram.bind();
   m_pointProgram.enableAttributeArray("vertex");
@@ -171,31 +216,10 @@ void ViewWidget::paintGL() {
   m_pointProgram.setAttributeArray("vertex", m_points.constData(), 3); // tuple size: 3 (x,y,z)
   m_pointProgram.setAttributeArray("color", m_colors.constData(), 3); // tuple size: 3 (r,g,b)
 
-  glDrawArrays(GL_POINTS, 0, m_points.count()/3*0.05f);
+  glDrawArrays(GL_POINTS, 0, m_points.count()/3);
 
   m_pointProgram.disableAttributeArray("vertex");
   m_pointProgram.disableAttributeArray("color");
-
-//  program.setAttributeArray(vertexLocation, triangleVertices, 3);
-
-//  // Draw red pentagon
-//  auto pentagon = createPolygon(60, 60, 0, 50, 5);
-//  program.setAttributeArray(vertexLocation, pentagon.constData(), 3);
-//  program.setUniformValue(colorLocation, QColor(255, 0, 0, 255));
-//  glDrawArrays(GL_POLYGON, 0, pentagon.count()/3);
-
-//  // Draw green octagon
-//  auto saveMatrix = pmvMatrix;
-//  pmvMatrix.translate(60, 60, 0);
-//  pmvMatrix.rotate(45.0f, {0, 1, 0});
-//  pmvMatrix.translate(-60, -60, 0);
-//  auto octagon = createPolygon(60, 60, -0.5, 60, 8);
-//  program.setAttributeArray(vertexLocation, octagon.constData(), 3);
-//  program.setUniformValue(colorLocation, QColor(0, 255, 0, 255));
-//  program.setUniformValue(matrixLocation, pmvMatrix);
-//  glDrawArrays(GL_POLYGON, 0, octagon.count()/3);
-
-//  pmvMatrix = saveMatrix;
 
   program.bind();
   program.enableAttributeArray(vertexLocation);

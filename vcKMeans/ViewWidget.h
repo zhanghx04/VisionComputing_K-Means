@@ -16,6 +16,11 @@ public:
 
   float angleForTime(qint64 msTime, float secondsPerRotation) const;
 
+  void samplePointsGenteration();
+//  void getPoints(std::uniform_real);
+  void dataGeneration(int samplesPerCluster, int dim);
+
+
 protected:
   void initializeGL() override;
   void paintGL() override;
@@ -26,9 +31,13 @@ private slots:
 private:
   float m_turntableAngle = 0.0f;
 
+  // Check if is 3D data, if so the view will turn
+  bool m_spin = false;
+
   QVector<float> m_points;
   QVector<float> m_colors;
 
+  // For Elapsed Timer
   QOpenGLShaderProgram m_pointProgram;
   QElapsedTimer m_elapsedTimer;
 
