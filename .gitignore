@@ -1,0 +1,5 @@
+# Ignore the build directory
+build-vcKMeans-Desktop_Qt_5_15_2_clang_64bit-Debug/
+
+# Ignore .user files
+*.user
