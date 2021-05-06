@@ -19,9 +19,10 @@ public:
   void samplePointsGenteration();
 //  void getPoints(std::uniform_real);
   void dataGeneration(int samplesPerCluster, int dim);
-  void initialCenters(int initialize_type);
-  void find_closest(QVector<float> point, QVector<float> centers, int distance_tyep);
-  void doKmeans(int k);
+  void initialCenters();
+  void check_params(int k, QString distance_function, QString center_initial_method);
+  int find_closest(QVector<float> point);
+  void doKmeans(int k, QString distance_function, QString center_initial_method);
 
 
 protected:
@@ -49,9 +50,13 @@ private:
   float m_fps;
 
   // K-Means
-  int m_totalSample;
-  int m_k; // number of cluster
+  int m_dim;          // Dimension
+  int m_totalSample;  // total number of points
+  int m_k;            // number of cluster
+  int m_dist_method;  // distance method
+  int m_cent_method;  // center initial method
   QVector<float> m_centers;
+  QVector<float> m_centerColors;
 };
 
 #endif // VIEWWIDGET_H

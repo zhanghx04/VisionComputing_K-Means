@@ -2,11 +2,14 @@
 
 #include <QApplication>
 #include <QOpenGLShaderProgram>
+#include <QtGlobal>
 #include <QPainter>
 #include <QtMath>
 #include <QTimer>
 #include <chrono>
 #include <random>
+#include <cstdlib>
+#include <algorithm>
 
 #include <QDebug>
 
@@ -23,10 +26,21 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
 //  samplePointsGenteration();
 
+  qDebug() << "[INFO] Data loading...";
   dataGeneration(100, 2); // ( samplePerCluster, dimension)
-  qDebug() << "Data loaded.";
 
-  doKmeans(4); // ( K )
+  /*
+   * doKmeans(k, distance_function, center_initial_method)
+   * distance_function:
+   *    1. l1-norm
+   *    2. l2-norm
+   *    3. l-infinity-norm
+   * center_initial_method:
+   *    1. random_real
+   *    2. random_sample
+   *    3. k-means++
+   */
+  doKmeans(4, "l2-norm", "random_real");
 
   m_fpsTimer.start();
 }
@@ -77,7 +91,10 @@ void ViewWidget::samplePointsGenteration()
 
 void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
 {
-  if (dim > 2) {
+  m_dim = dim;
+  qDebug() << "[INFO] Dimension of Data:" << m_dim << "Dimension";
+
+  if (m_dim > 2) {
     m_spin = true;
   } else {
     m_spin = false;
@@ -102,7 +119,7 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
     QVector<float> pointND2;
     QVector<float> pointND3;
     QVector<float> pointND4;
-    for (int i=0; i<dim; ++i){
+    for (int i=0; i<m_dim; ++i){
       pointND1.append(distribution1(engine));
       pointND2.append(distribution2(engine) + 150);
       pointND3.append(distribution3(engine) - 100);
@@ -115,7 +132,7 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
     pointND3[0] += 200;
     pointND4[0] += 250;
 
-    if (dim == 2){
+    if (m_dim == 2){
       pointND1.append(0.0f);
       pointND2.append(0.0f);
       pointND3.append(0.0f);
@@ -126,7 +143,7 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
     m_points.append(pointND3);
     m_points.append(pointND4);
     for (int i=0; i<4; ++i){
-      m_colors.append({0, 0, 0});
+      m_colors.append({255, 255, 255}); // white
     }
 
     count++;
@@ -134,7 +151,7 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
   m_totalSample = samplesPerCluster*4;
 }
 
-void ViewWidget::initialCenters(int initialize_type)
+void ViewWidget::initialCenters()
 {
   /*
    * Initialization centers
@@ -143,38 +160,105 @@ void ViewWidget::initialCenters(int initialize_type)
    *    2 - random sample:  randomly select one of the observations
    *    3 - K-Means++ distance based (D^2) careful seeding
    */
+  qDebug() << "[INFO] Start to initialize centers for each cluster...";
 
-  if (initialize_type < 1 || initialize_type > 3){
-    qDebug() << "ERROR: Please select initialize_type in range 1-3";
-    qDebug() << "Program terminated...";
-    QApplication::exec();
-  }
-
-  if (initialize_type == 1) {
+  if (m_cent_method == 1) {
     // 1 - random real:    any real number x, y location for the seed within the sample space
-    // TODO: implement random real
+    // get range of the sample
+    QVector<float> range_x {0, 0};
+    QVector<float> range_y {0, 0};
+    QVector<float> range_z {0, 0};
+    for (int i=0; i<m_totalSample; ++i) {
+      range_x[0] = qMin(range_x[0], m_points[i*3]);
+      range_x[1] = qMax(range_x[1], m_points[i*3]);
+      range_y[0] = qMin(range_y[0], m_points[i*3+1]);
+      range_y[1] = qMax(range_y[1], m_points[i*3+1]);
+      range_z[0] = qMin(range_z[0], m_points[i*3+2]);
+      range_z[1] = qMax(range_z[1], m_points[i*3+2]);
+    }
 
+    // generating centers
+    for (int i=0; i<m_k; ++i) {
+      float x = range_x[0] + rand() % int(range_x[1]-range_x[0]);
+      float y = range_y[0] + rand() % int(range_y[1]-range_y[0]);
+      float z {};
+      if (m_spin) {
+        z = range_z[0] + rand() % int(range_z[1]-range_z[0]);
+      } else {
+        z = 0.0f;
+      }
+      m_centers.append({x, y, z});
+    }
   }
 
-  if (initialize_type == 2) {
+  if (m_cent_method == 2) {
     // 2 - random sample:  randomly select one of the observations
     for (int i=0; i<m_k; ++i){
       int idx = rand() % m_totalSample-1;
-      qDebug() << m_points.mid(idx*3, 3);
       m_centers.append(m_points.mid(idx, 3));
     }
-//    qDebug() << m_centers;
 
   }
 
-  if (initialize_type == 3) {
+  if (m_cent_method == 3) {
     // 3 - K-Means++ distance based (D^2) careful seeding
     // TODO: implement K-Means++
 
   }
+
+  // Generate random color for centers
+  qDebug() << "[INFO] Generating different color for centers...";
+  for (int i=0; i<m_k; ++i){
+    float r {1.0f * (rand() % 255) / 255};
+    float g {1.0f * (rand() % 255) / 255};
+    float b {1.0f * (rand() % 255) / 255};
+    m_centerColors.append({r, g, b});
+  }
+
+  qDebug() << "[INFO] Centers initialized.";
 }
 
-void ViewWidget::find_closest(QVector<float> point, QVector<float> centers, int distance_type)
+void ViewWidget::check_params(int k, QString distance_function, QString center_initialize_method)
+{
+  // set number of cluster
+  m_k = k;
+  qDebug() << "[INFO] Number of Cluster:" << m_k;
+
+  if ( QString::compare(distance_function, "l1-norm", Qt::CaseInsensitive) == 0 ) {
+    m_dist_method = 1;
+  } else if ( QString::compare(distance_function, "l2-norm", Qt::CaseInsensitive) == 0 ) {
+    m_dist_method = 2;
+  } else if ( QString::compare(distance_function, "l-infinity-norm", Qt::CaseInsensitive) == 0 ) {
+    m_dist_method = 3;
+  } else {
+    qDebug() << "[ERROR] Please select Distance Function:";
+    qDebug() << "              1) l1-norm";
+    qDebug() << "              2) l2-norm";
+    qDebug() << "              3) l-infinity-norm";
+    qDebug() << "[SYSTEM] Program terminated...";
+    QApplication::exec();
+  }
+  qDebug() << "[INFO] Distance Function:" << distance_function;
+
+
+  if ( QString::compare(center_initialize_method, "random_real", Qt::CaseInsensitive) == 0 ) {
+    m_cent_method = 1;
+  } else if ( QString::compare(center_initialize_method, "random_sample", Qt::CaseInsensitive) == 0 ) {
+    m_cent_method = 2;
+  } else if ( QString::compare(center_initialize_method, "k-means++", Qt::CaseInsensitive) == 0 ) {
+    m_cent_method = 3;
+  } else {
+    qDebug() << "[ERROR] Please select Center Initial Type:";
+    qDebug() << "              1) random_real";
+    qDebug() << "              2) random_sample";
+    qDebug() << "              3) k-means++";
+    qDebug() << "[SYSTEM] Program terminated...";
+    QApplication::exec();
+  }
+  qDebug() << "[INFO] Center Initial Type:" << center_initialize_method;
+}
+
+int ViewWidget::find_closest(QVector<float> point)
 {
   /*
    *  compare the distance between point and each center and return the closest center
@@ -184,29 +268,27 @@ void ViewWidget::find_closest(QVector<float> point, QVector<float> centers, int 
    *    2 - L2 norm
    *    3 - L-infinity norm
    */
-  if (distance_type < 1 || distance_type > 3){
-    qDebug() << "ERROR: Please select distance_type in range 1-3";
-    QApplication::exec();
-  }
-
   QVector<float> dists;
-
+  // TODO Fix code here
   for (int i=0; i<m_totalSample; ++i){
     float dist {0.0};
     QVector<float> center = m_points.mid(i*3, 3);
-    center -= point;
+    // get difference
+    center[0] -= point[0];  // x
+    center[1] -= point[1];  // y
+    center[2] -= point[2];  // z
 
-    if (distance_type == 1){
-      // https://montjoile.medium.com/l0-norm-l1-norm-l2-norm-l-infinity-norm-7a7d18a4f40c#:~:text=Also%20known%20as%20Manhattan%20Distance,the%20components%20of%20the%20vectors.
-      dist = center.rx() + center.ry();
+    if (m_dist_method == 1){
+      //
+      dist = center[0] + center[1] + center[2];
     }
 
-    if (distance_type == 2){
-      dist = qSqrt(qPow(center.rx(), 2) + qPow(center.ry(), 2));
+    if (m_dist_method == 2){
+      dist = qSqrt(qPow(center[0], 2) + qPow(center[1], 2) + qPow(center[2], 2));
     }
 
-    if (distance_type == 3) {
-      dist = qMax(center.rx(), center.ry());
+    if (m_dist_method == 3) {
+      dist = *std::max_element(center.constBegin(), center.constEnd());
     }
 
     dists.append(dist);
@@ -216,20 +298,17 @@ void ViewWidget::find_closest(QVector<float> point, QVector<float> centers, int 
   return dists.indexOf(*std::min_element(dists.constBegin(), dists.constEnd()));
 }
 
-void ViewWidget::doKmeans(int k)
+void ViewWidget::doKmeans(int k, QString distance_function, QString center_initialize_method)
 {
-  qDebug() << "Start to seperate to" << k << "clusters!";
-
-  // set number of cluster
-  m_k = k;
+  // check parameters to see if the input is invalid
+  check_params(k, distance_function, center_initialize_method);
 
   //
   // K-Means Algorithm
-
+  qDebug() << "\n[INFO] Start K-Means Algorithm!";
   // Initial centers
-  initialCenters(2);
-  qDebug() << m_points;
-  qDebug() << "Centers initialized.";
+  initialCenters();
+
 }
 
 void ViewWidget::initializeGL()
@@ -246,13 +325,13 @@ void ViewWidget::initializeGL()
   // set point program for 3-D points
   m_pointProgram.addShaderFromSourceCode(QOpenGLShader::Vertex,
                                          "attribute highp vec4 vertex;\n"
-//                                         "attribute mediump vec4 color;\n"
+                                         "attribute mediump vec4 color;\n"
                                          "varying mediump vec4 vColor;\n"
                                          "uniform highp mat4 matrix;\n"
                                          "void main(void) { \n"
                                          "  gl_Position = matrix * vertex;\n"
-                                         "  vColor = (vertex + vec4(1.0))/2.0;"
-//                                         "  vColor = color;\n"
+//                                         "  vColor = (vertex + vec4(1.0))/2.0;"
+                                         "  vColor = color;\n"
                                          "}");
 
   m_pointProgram.addShaderFromSourceCode(QOpenGLShader::Fragment,
@@ -306,7 +385,6 @@ void ViewWidget::paintGL() {
     pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
   }
 
-
   program.setUniformValue(matrixLocation, pmvMatrix);
 
   m_pointProgram.bind();
@@ -314,10 +392,18 @@ void ViewWidget::paintGL() {
   m_pointProgram.enableAttributeArray("color");
 
   m_pointProgram.setUniformValue("matrix", pmvMatrix);
+
+  // draw points
   m_pointProgram.setAttributeArray("vertex", m_points.constData(), 3); // tuple size: 3 (x,y,z)
   m_pointProgram.setAttributeArray("color", m_colors.constData(), 3); // tuple size: 3 (r,g,b)
-
   glDrawArrays(GL_POINTS, 0, m_points.count()/3);
+
+  // draw centers
+  glPointSize(10.0f);
+  m_pointProgram.setAttributeArray("vertex", m_centers.constData(), 3); // tuple size: 3 (x,y,z)
+  m_pointProgram.setAttributeArray("color", m_centerColors.constData(), 3); // tuple size: 3 (r,g,b)
+  glDrawArrays(GL_POINTS, 0, m_centers.count()/3);
+  glPointSize(3.0f);
 
   m_pointProgram.disableAttributeArray("vertex");
   m_pointProgram.disableAttributeArray("color");
