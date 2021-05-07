@@ -200,11 +200,17 @@ void ViewWidget::dataGenerateFromFile(QString filename)
   // save k
   m_dim = in.readLine().toInt();
 
+  int data_scale {1};
+
+  if (filename == "e_corners_1.txt" || filename == "f_corners_2.txt" || filename == "g_overlapping.txt") {
+    data_scale = 100;
+  }
+
   // read 2d points
   while (!in.atEnd()){
     QString line = in.readLine();
-    float x {line.split(" ")[0].toFloat()};
-    float y {line.split(" ")[1].toFloat()};
+    float x {line.split(" ")[0].toFloat()/data_scale};
+    float y {line.split(" ")[1].toFloat()/data_scale};
     m_points.append({x, y, 0.0f});
     m_colors.append({255, 255, 255}); // add color for each read point.
 
@@ -454,7 +460,7 @@ void ViewWidget::paintGL() {
     pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.5f, 1.0f, 0.5f});
   } else {
     if (m_isTXTfile) {
-      pmvMatrix.lookAt({0, 0, 300}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
+      pmvMatrix.lookAt({0, 0, 4}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
     } else {
       pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
     }
