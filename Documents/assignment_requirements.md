@@ -6,9 +6,12 @@ For Part 1 you can assume the input feature points are 2D, for Part 2 you can as
 
 ### What to turn in?
 Three items to turn in: 
-    * You should turn in your code git repository as a zip file. 
-    * You also need to submit a short report in PDF format, with your implementation details, sample output and performance comparison between the three types of initializations (random real, random sample and K-Means++) comparing both speed and the clustering energy. 
-    * You should upload a short animation (less than 4 minutes in length) of your K-Means interactive algorithm showing updates and user interaction (ie mp4, ffmpeg movie) for both Part 1 and Part 2.
+- You should turn in your **code git repository** as a zip file. 
+- You also need to submit a **short report in PDF format**, with your 
+   - implementation details
+   - sample output
+   - performance comparison between the three types of initializations (random real, random sample and K-Means++) comparing both speed and the clustering energy. 
+- You should upload a short animation (less than 4 minutes in length) of your K-Means interactive algorithm showing updates and user interaction (ie mp4, ffmpeg movie) for both Part 1 and Part 2.
 
 ## Part 1: Implement interactive K-Means clustering with 2D visualization (50 points)
 Specifications for Part 1 include the following:
