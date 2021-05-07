@@ -27,6 +27,9 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
   m_elapsedTimer.start();
 
+  // seeding the rand() function
+  srand(time(NULL));
+
 //  samplePointsGenteration();
 
   //////////////////////////////
@@ -36,11 +39,20 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
   qDebug() << "[INFO] Data loading...";
   if (m_isTXTfile) {
-    dataGenerateFromFile("a.txt");
+    /*
+     * data file name:
+     *        a.txt
+     *        b.txt
+     *        c.txt
+     *        d.txt
+     *        d_ring.txt
+     */
+    dataGenerateFromFile("c.txt");
   } else {
     dataGeneration(100, 3); // ( samplePerCluster, dimension)
   }
-
+  qDebug() << "[INFO] Total number of samples:" << m_totalSample;
+  qDebug() << "[INFO]       Dimension of Data:" << m_dim << "Dimension";
 
   /*
    * doKmeans(k, distance_function, center_initial_method)
@@ -53,7 +65,7 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
    *    2. random_sample
    *    3. k-means++
    */
-//  doKmeans(4, "l2-norm", "random_real");
+  doKmeans(3, "l2-norm", "random_real");
 
 
 
@@ -107,7 +119,6 @@ void ViewWidget::samplePointsGenteration()
 void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
 {
   m_dim = dim;
-  qDebug() << "[INFO] Dimension of Data:" << m_dim << "Dimension";
 
   if (m_dim > 2) {
     m_spin = true;
@@ -189,7 +200,7 @@ void ViewWidget::dataGenerateFromFile(QString filename)
     QString line = in.readLine();
     float x {line.split(" ")[0].toFloat()};
     float y {line.split(" ")[1].toFloat()};
-    m_points.append({x, y, 0.0});
+    m_points.append({x, y, 0.0f});
     m_colors.append({255, 255, 255}); // add color for each read point.
   }
   inputFile.close();
@@ -266,7 +277,7 @@ void ViewWidget::check_params(int k, QString distance_function, QString center_i
 {
   // set number of cluster
   m_k = k;
-  qDebug() << "[INFO] Number of Cluster:" << m_k;
+  qDebug() << "[INFO]       Number of Cluster:" << m_k;
 
   if ( QString::compare(distance_function, "l1-norm", Qt::CaseInsensitive) == 0 ) {
     m_dist_method = 1;
@@ -282,7 +293,7 @@ void ViewWidget::check_params(int k, QString distance_function, QString center_i
     qDebug() << "[SYSTEM] Program terminated...";
     QApplication::exec();
   }
-  qDebug() << "[INFO] Distance Function:" << distance_function;
+  qDebug() << "[INFO]       Distance Function:" << distance_function;
 
 
   if ( QString::compare(center_initialize_method, "random_real", Qt::CaseInsensitive) == 0 ) {
@@ -299,7 +310,7 @@ void ViewWidget::check_params(int k, QString distance_function, QString center_i
     qDebug() << "[SYSTEM] Program terminated...";
     QApplication::exec();
   }
-  qDebug() << "[INFO] Center Initial Type:" << center_initialize_method;
+  qDebug() << "[INFO]     Center Initial Type:" << center_initialize_method;
 }
 
 int ViewWidget::find_closest(QVector<float> point)
@@ -445,7 +456,7 @@ void ViewWidget::paintGL() {
     pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 15), {0.5f, 1.0f, 0.5f});
   } else {
     if (m_isTXTfile) {
-      pmvMatrix.lookAt({0, 0, 10}, {8, 8, 0}, {0, 1, 0}); // this is for given txt data
+      pmvMatrix.lookAt({0, 0, 4}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
     } else {
       pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
     }
