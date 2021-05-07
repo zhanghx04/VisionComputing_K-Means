@@ -5,6 +5,8 @@ This is the repository for K-Means alogirthm in Vision Computing course assignme
 Author: Haoxiang Zhang
 
 # Assignment Requirements
-<img src="https://img.icons8.com/plasticine/2x/arrow.png" width=20> [Updated Version Assignment Requirements](Documents/README.md)
+<img src="https://img.icons8.com/plasticine/2x/arrow.png" height=20> [Updated Version Assignment Requirements](Documents/README.md)
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" width=15> Notion: [Assignment Requirements (Old version)](https://www.notion.so/VC-Assignment-K-Means-Algorithm-e444e3c22eb04eb795fbd09a0948ab56)
+<img src="https://lrwa.org/wp-content/uploads/2018/12/adobe-pdf-icon.png" height=20> [Slides for K-Means clustering Assignment4](Documents/Lecture 32+33 Slides K-Means-clustering_Assignment4.pdf)
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" height=20> Notion: [Assignment Requirements (Old version)](https://www.notion.so/VC-Assignment-K-Means-Algorithm-e444e3c22eb04eb795fbd09a0948ab56)
