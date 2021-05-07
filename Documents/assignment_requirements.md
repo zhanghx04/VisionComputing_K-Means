@@ -43,8 +43,8 @@ Specifications for Part 1 include the following:
     5. Synthetic dataset 1 (K=4, D=2, N=400): 4 “real” centers at the corners of a square side length 250. Add point from Gaussian with variance 1, for both x and y, centered at each center for well-separated “ideal” clusters.
     6. Synthetic dataset 2 (K=4, D=2, N=400): 4 “real” centers at the corners of a square side length 250. Add point from Gaussian with variance 1 in  x and variance 4 in y, centered at each center for elliptical clusters.
     7. Synthetic dataset 3 overlapping clusters like in Slide 14.
-    8. (Optional synthetic data used in K-Means++) See slides 12  and 13 for Norm-10 and Norm-25 sample dataset descriptions. For example, Synthetic dataset Norm-10 (K=10, D=5, N=10,000): 10 “real” centers uniformly 8. from hypercube of side length 500. Add point from Gaussian with variance 1, centered at each center for well-separated “ideal” clusters. This would be useful for timing
-Compare the speed and energy value of K-Means for three cases:
+    8. (Optional synthetic data used in K-Means++) See slides 12  and 13 for Norm-10 and Norm-25 sample dataset descriptions. For example, Synthetic dataset Norm-10 (K=10, D=5, N=10,000): 10 “real” centers uniformly from hypercube of side length 500. Add point from Gaussian with variance 1, centered at each center for well-separated “ideal” clusters. This would be useful for timing
+8. Compare the speed and energy value of K-Means for three cases:
     - [ ] random real,
     - [ ] random sample,
     - [ ] K-Means++ initialization (D2 weighting).
