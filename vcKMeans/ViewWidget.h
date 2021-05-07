@@ -55,9 +55,12 @@ private:
   float m_fps;
 
   // K-Means
+  QTimer *ttime = new QTimer(this);
   bool m_isTXTfile = false;
   QString m_folder;
 
+  int account = 0;  // accout how many iterations
+  QVector<float> centers_ref {};
 
   int m_dim;          // Dimension
   int m_totalSample;  // total number of points

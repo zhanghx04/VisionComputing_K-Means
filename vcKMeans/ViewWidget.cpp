@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <stdio.h>
+#include <QThread>
 
 #include <QDebug>
 
@@ -36,7 +37,7 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
   //////////////////////////////
   /// IF read data from file ///
   //////////////////////////////
-  m_isTXTfile = false;
+  m_isTXTfile = true;
 
   qDebug() << "[INFO] Data loading...";
   if (m_isTXTfile) {
@@ -47,8 +48,11 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
      *        c.txt
      *        d.txt
      *        d_ring.txt
+     *        e_corners_1.txt
+     *        f_corners_2.txt
+     *        g_overlapping.txt
      */
-    dataGenerateFromFile("c.txt");
+    dataGenerateFromFile("g_overlapping.txt");
   } else {
     dataGeneration(100, 3); // ( samplePerCluster, dimension)
   }
@@ -66,7 +70,6 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
    *    2. random_sample
    *    3. k-means++
    */
-
   doKmeans(5, "l2-norm", "random_real");
 
 
@@ -375,34 +378,9 @@ void ViewWidget::doKmeans(int k, QString distance_function, QString center_initi
 
   qDebug() << "Centers: " << m_centers;
 
-
-  QVector<float> centers_ref {};
-
-  bool if_continue = true;
-  int account = 0;  // accout how many iterations
-
-
-
-
-  do {
-    auto ttime = new QTimer(this);
-    ttime->callOnTimeout(this, &ViewWidget::k_means_iter);
-//    ttime->setSingleShot(true);
-    ttime->start(500);
-
-
-    // check if centers are not move
-    if_continue = (m_centers != centers_ref);
-
-    centers_ref = m_centers;
-    account++;
-    qDebug() << "[K-MEANS] iteration -" << account;
-
-
-  } while (if_continue);
-
-
-  qDebug() << "[INFO] K-Means Algorithm finished.";
+  ttime->callOnTimeout(this, &ViewWidget::k_means_iter);
+  //    ttime->setSingleShot(true);
+  ttime->start(500);
 }
 
 void ViewWidget::initializeGL()
@@ -438,7 +416,6 @@ void ViewWidget::initializeGL()
   m_pointProgram.link();
 }
 
-
 void ViewWidget::paintGL() {
   glEnable(GL_DEPTH_TEST);
 
@@ -473,11 +450,11 @@ void ViewWidget::paintGL() {
   pmvMatrix.perspective(440.0f, float(width())/height(), 1.0f, 10000.0f);
 
   if (m_spin) {
-    pmvMatrix.lookAt({255, 255, 600}, {100, 100, 0}, {0, 1, 0});
-    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.0f, 1.0f, 0.0f});
+    pmvMatrix.lookAt({455, 455, 600}, {150, 150, 0}, {0, 1, 0});
+    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.5f, 1.0f, 0.5f});
   } else {
     if (m_isTXTfile) {
-      pmvMatrix.lookAt({0, 0, 4}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
+      pmvMatrix.lookAt({0, 0, 300}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
     } else {
       pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
     }
@@ -609,4 +586,17 @@ void ViewWidget::k_means_iter()
       m_centers[i*3 + 2] = m_ave_point[2];
     }
   }
+
+  // check if centers are not move
+  if (m_centers == centers_ref) {
+    qDebug() << "[INFO] K-Means Algorithm finished.";
+    ttime->stop();
+    return;
+  }
+
+  centers_ref = m_centers;
+  account++;
+  qDebug() << "[K-MEANS] iteration -" << account;
+
+
 }
