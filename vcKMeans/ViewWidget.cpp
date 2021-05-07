@@ -6,10 +6,13 @@
 #include <QPainter>
 #include <QtMath>
 #include <QTimer>
+#include <QString>
+#include <QFile>
 #include <chrono>
 #include <random>
 #include <cstdlib>
 #include <algorithm>
+#include <stdio.h>
 
 #include <QDebug>
 
@@ -26,8 +29,18 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
 //  samplePointsGenteration();
 
+  //////////////////////////////
+  /// IF read data from file ///
+  //////////////////////////////
+  m_isTXTfile = true;
+
   qDebug() << "[INFO] Data loading...";
-  dataGeneration(100, 2); // ( samplePerCluster, dimension)
+  if (m_isTXTfile) {
+    dataGenerateFromFile("a.txt");
+  } else {
+    dataGeneration(100, 3); // ( samplePerCluster, dimension)
+  }
+
 
   /*
    * doKmeans(k, distance_function, center_initial_method)
@@ -40,7 +53,9 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
    *    2. random_sample
    *    3. k-means++
    */
-  doKmeans(4, "l2-norm", "random_real");
+//  doKmeans(4, "l2-norm", "random_real");
+
+
 
   m_fpsTimer.start();
 }
@@ -149,6 +164,35 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
     count++;
   }
   m_totalSample = samplesPerCluster*4;
+}
+
+void ViewWidget::dataGenerateFromFile(QString filename)
+{
+  m_folder = "/Users/haoxiangzhang/Documents/GitHub/VisionComputing-KMeasn/vcKMeans/dataset/";
+
+  QFile inputFile(m_folder+filename);
+  if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+    qDebug() << "[ERROR] File" << filename << "is not exist in current directory...";
+    qDebug() << "[SYSTEM] Application Terminated.";
+    return;
+  }
+
+  // Reading files
+  QTextStream in(&inputFile);
+  // save total sample number
+  m_totalSample = in.readLine().toInt();
+  // save k
+  m_dim = in.readLine().toInt();
+
+  // read 2d points
+  while (!in.atEnd()){
+    QString line = in.readLine();
+    float x {line.split(" ")[0].toFloat()};
+    float y {line.split(" ")[1].toFloat()};
+    m_points.append({x, y, 0.0});
+    m_colors.append({255, 255, 255}); // add color for each read point.
+  }
+  inputFile.close();
 }
 
 void ViewWidget::initialCenters()
@@ -269,14 +313,15 @@ int ViewWidget::find_closest(QVector<float> point)
    *    3 - L-infinity norm
    */
   QVector<float> dists;
-  // TODO Fix code here
-  for (int i=0; i<m_totalSample; ++i){
+  // go through each center and get the distance
+  for (int i=0; i<m_centerColors.length()/3; ++i){
     float dist {0.0};
-    QVector<float> center = m_points.mid(i*3, 3);
+    QVector<float> center = m_centers.mid(i*3, 3);
+
     // get difference
-    center[0] -= point[0];  // x
-    center[1] -= point[1];  // y
-    center[2] -= point[2];  // z
+    center[0] = qAbs(center[0] - point[0]);  // x
+    center[1] = qAbs(center[1] - point[1]);  // y
+    center[2] = qAbs(center[2] - point[2]);  // z
 
     if (m_dist_method == 1){
       //
@@ -305,9 +350,26 @@ void ViewWidget::doKmeans(int k, QString distance_function, QString center_initi
 
   //
   // K-Means Algorithm
+  //
   qDebug() << "\n[INFO] Start K-Means Algorithm!";
+
   // Initial centers
   initialCenters();
+
+  QVector<float> centers_ref = m_centers;
+
+  bool if_continue = true;
+  int account = 0;
+  QVector<int> closest;
+
+  // go through each point and find their closest center
+  for (int i=0; i<m_totalSample; ++i) {
+    int idx = find_closest(m_points.mid(i*3, 3));
+    closest.append(idx); // save the index of center for each point
+  }
+
+  // update new center
+
 
 }
 
@@ -382,7 +444,11 @@ void ViewWidget::paintGL() {
     pmvMatrix.lookAt({255, 255, 500}, {200, 100, 0}, {0, 1, 0});
     pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 15), {0.5f, 1.0f, 0.5f});
   } else {
-    pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
+    if (m_isTXTfile) {
+      pmvMatrix.lookAt({0, 0, 10}, {8, 8, 0}, {0, 1, 0}); // this is for given txt data
+    } else {
+      pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
+    }
   }
 
   program.setUniformValue(matrixLocation, pmvMatrix);
