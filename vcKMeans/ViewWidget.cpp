@@ -27,6 +27,7 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
   m_elapsedTimer.start();
 
+
   // seeding the rand() function
   srand(time(NULL));
 
@@ -35,7 +36,7 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
   //////////////////////////////
   /// IF read data from file ///
   //////////////////////////////
-  m_isTXTfile = true;
+  m_isTXTfile = false;
 
   qDebug() << "[INFO] Data loading...";
   if (m_isTXTfile) {
@@ -65,7 +66,8 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
    *    2. random_sample
    *    3. k-means++
    */
-  doKmeans(3, "l2-norm", "random_real");
+
+  doKmeans(5, "l2-norm", "random_real");
 
 
 
@@ -202,8 +204,14 @@ void ViewWidget::dataGenerateFromFile(QString filename)
     float y {line.split(" ")[1].toFloat()};
     m_points.append({x, y, 0.0f});
     m_colors.append({255, 255, 255}); // add color for each read point.
+
+    m_ave_point[0] += x;
+    m_ave_point[1] += y;
   }
   inputFile.close();
+
+  m_ave_point[0] /= m_totalSample;
+  m_ave_point[1] /= m_totalSample;
 }
 
 void ViewWidget::initialCenters()
@@ -236,11 +244,9 @@ void ViewWidget::initialCenters()
     for (int i=0; i<m_k; ++i) {
       float x = range_x[0] + rand() % int(range_x[1]-range_x[0]);
       float y = range_y[0] + rand() % int(range_y[1]-range_y[0]);
-      float z {};
+      float z {0.0f};
       if (m_spin) {
         z = range_z[0] + rand() % int(range_z[1]-range_z[0]);
-      } else {
-        z = 0.0f;
       }
       m_centers.append({x, y, z});
     }
@@ -250,7 +256,7 @@ void ViewWidget::initialCenters()
     // 2 - random sample:  randomly select one of the observations
     for (int i=0; i<m_k; ++i){
       int idx = rand() % m_totalSample-1;
-      m_centers.append(m_points.mid(idx, 3));
+      m_centers.append(m_points.mid(idx*3, 3));
     }
 
   }
@@ -367,27 +373,42 @@ void ViewWidget::doKmeans(int k, QString distance_function, QString center_initi
   // Initial centers
   initialCenters();
 
-  QVector<float> centers_ref = m_centers;
+  qDebug() << "Centers: " << m_centers;
+
+
+  QVector<float> centers_ref {};
 
   bool if_continue = true;
-  int account = 0;
-  QVector<int> closest;
-
-  // go through each point and find their closest center
-  for (int i=0; i<m_totalSample; ++i) {
-    int idx = find_closest(m_points.mid(i*3, 3));
-    closest.append(idx); // save the index of center for each point
-  }
-
-  // update new center
+  int account = 0;  // accout how many iterations
 
 
+
+
+  do {
+    auto ttime = new QTimer(this);
+    ttime->callOnTimeout(this, &ViewWidget::k_means_iter);
+//    ttime->setSingleShot(true);
+    ttime->start(500);
+
+
+    // check if centers are not move
+    if_continue = (m_centers != centers_ref);
+
+    centers_ref = m_centers;
+    account++;
+    qDebug() << "[K-MEANS] iteration -" << account;
+
+
+  } while (if_continue);
+
+
+  qDebug() << "[INFO] K-Means Algorithm finished.";
 }
 
 void ViewWidget::initializeGL()
 {
   initializeOpenGLFunctions();
-  glClearColor(0.2, 0.2, 0.2, 0.1);
+  glClearColor(0.2, 0.2, 0.2, 0);
 
 //  glDepthFunc(GL_LEQUAL); // this change to " if (z = D(i,j)) "
   glEnable(GL_DEPTH_TEST);
@@ -452,8 +473,8 @@ void ViewWidget::paintGL() {
   pmvMatrix.perspective(440.0f, float(width())/height(), 1.0f, 10000.0f);
 
   if (m_spin) {
-    pmvMatrix.lookAt({255, 255, 500}, {200, 100, 0}, {0, 1, 0});
-    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 15), {0.5f, 1.0f, 0.5f});
+    pmvMatrix.lookAt({255, 255, 600}, {100, 100, 0}, {0, 1, 0});
+    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.0f, 1.0f, 0.0f});
   } else {
     if (m_isTXTfile) {
       pmvMatrix.lookAt({0, 0, 4}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
@@ -545,4 +566,47 @@ void ViewWidget::updateTurntable()
 //  m_turntableAngle += 1.0f;
 
   update();
+}
+
+void ViewWidget::k_means_iter()
+{
+  QVector<int> closest; // save the closest center idx for each point
+
+  // go through each point and find their closest center
+  for (int i=0; i<m_totalSample; ++i) {
+    int idx = find_closest(m_points.mid(i*3, 3));
+    closest.append(idx); // save the index of center for each point
+
+    // update the color of point
+    m_colors[i*3 + 0] = m_centerColors[idx*3 + 0]/3*2;
+    m_colors[i*3 + 1] = m_centerColors[idx*3 + 1]/3*2;
+    m_colors[i*3 + 2] = m_centerColors[idx*3 + 2]/3*2;
+  }
+
+  // update new center
+  for (int i=0; i<m_k; ++i) { // go each center
+    int acc {0}; // how many points that current center is the closest one
+    QVector<float> total {0, 0, 0}; // for sum all points
+
+    for (int j=0; j<m_totalSample; ++j) {
+      int p = closest.at(j);
+      if (p == i) {
+        total[0] += m_points[j*3];      // x
+        total[1] += m_points[j*3 + 1];  // y
+        total[2] += m_points[j*3 + 2];  // z
+
+        acc++;
+      }
+    }
+
+    if (acc != 0) {   // in case if acc = 0, then the center updated to nan
+      m_centers[i*3 + 0] = total[0]/acc;
+      m_centers[i*3 + 1] = total[1]/acc;
+      m_centers[i*3 + 2] = total[2]/acc;
+    } else {
+      m_centers[i*3 + 0] = m_ave_point[0];
+      m_centers[i*3 + 1] = m_ave_point[1];
+      m_centers[i*3 + 2] = m_ave_point[2];
+    }
+  }
 }

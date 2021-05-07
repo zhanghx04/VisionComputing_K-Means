@@ -6,6 +6,7 @@
 #include <QOpenGLShaderProgram>
 
 #include <QElapsedTimer>
+#include <QTimer>
 
 class ViewWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -23,6 +24,7 @@ public:
   void initialCenters();
   void check_params(int k, QString distance_function, QString center_initial_method);
   int find_closest(QVector<float> point);
+  void k_means_iter();
   void doKmeans(int k, QString distance_function, QString center_initial_method);
 
 
@@ -41,10 +43,12 @@ private:
 
   QVector<float> m_points;
   QVector<float> m_colors;
+  QVector<float> m_ave_point {0.0f, 0.0f, 0.0f};
 
   // For Elapsed Timer
   QOpenGLShaderProgram m_pointProgram;
   QElapsedTimer m_elapsedTimer;
+
 
   QElapsedTimer m_fpsTimer;
   int m_frameCount;
@@ -54,6 +58,7 @@ private:
   bool m_isTXTfile = false;
   QString m_folder;
 
+
   int m_dim;          // Dimension
   int m_totalSample;  // total number of points
   int m_k;            // number of cluster
@@ -61,6 +66,7 @@ private:
   int m_cent_method;  // center initial method
   QVector<float> m_centers;       // store centers
   QVector<float> m_centerColors;  // save centers' color
+
 };
 
 #endif // VIEWWIDGET_H
