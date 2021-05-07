@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>669</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,240 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_v1">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_k">
+          <item>
+           <widget class="QLabel" name="k_label">
+            <property name="text">
+             <string>K:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="k_spinBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_speed">
+          <item>
+           <widget class="QLabel" name="speed_label">
+            <property name="text">
+             <string>Speed(ms): </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="speed_spinBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_sample">
+          <item>
+           <widget class="QLabel" name="sample_label">
+            <property name="text">
+             <string>Sample per Cluster:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sample_spinBox"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_v2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_dim">
+          <item>
+           <widget class="QLabel" name="dim_label">
+            <property name="text">
+             <string>Dimension(2 or 3):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="dim_spinBox"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_dist_m">
+          <item>
+           <widget class="QLabel" name="dist_m_label">
+            <property name="text">
+             <string>Distance method:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="dist_m_comboBox">
+            <item>
+             <property name="text">
+              <string>l1_norm</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>l2_norm</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>l-infinity-norm</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_cent_m">
+          <item>
+           <widget class="QLabel" name="cent_m_label">
+            <property name="text">
+             <string>Centroid initializing method:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cent_m_comboBox">
+            <item>
+             <property name="text">
+              <string>random_real</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>random_sample</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>k-means++</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line_v">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_v3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_file_name">
+          <item>
+           <widget class="QLabel" name="file_name_label">
+            <property name="text">
+             <string>File Name:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="file_name_comboBox">
+            <item>
+             <property name="text">
+              <string>a.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>b.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>c.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>d.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>d_ring.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>e_corners_1.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>f_corners_2.txt</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>g_overlapping.txt</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="if_file_checkBox">
+          <property name="text">
+           <string>Data from File</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="generate_pushButton">
+          <property name="text">
+           <string>Generate Data</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="Line" name="line_h">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="ViewWidget" name="viewWidget"/>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_step_button">
+      <item>
+       <widget class="QPushButton" name="prev_pushButton">
+        <property name="text">
+         <string>Previous</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="next_pushButton">
+        <property name="text">
+         <string>Next</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
