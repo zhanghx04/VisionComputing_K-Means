@@ -75,7 +75,18 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="dim_spinBox"/>
+           <widget class="QComboBox" name="dim_comboBox">
+            <item>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3</string>
+             </property>
+            </item>
+           </widget>
           </item>
          </layout>
         </item>
@@ -234,20 +245,31 @@
      <widget class="ViewWidget" name="viewWidget"/>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_step_button">
+     <layout class="QHBoxLayout" name="horizontalLayout_bottom">
       <item>
-       <widget class="QPushButton" name="prev_pushButton">
-        <property name="text">
-         <string>Previous</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="next_pushButton">
-        <property name="text">
-         <string>Next</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_step_button">
+        <item>
+         <widget class="QCheckBox" name="each_step_checkBox">
+          <property name="text">
+           <string>Go Each Step</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="prev_pushButton">
+          <property name="text">
+           <string>Previous</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="next_pushButton">
+          <property name="text">
+           <string>Next</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
