@@ -1,11 +1,26 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include <QActionGroup>
+#include <QObject>
+
+
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+
+  // set range of speed and sample per cluster
+  ui->speed_spinBox->setRange(100, 10000);
+  ui->sample_spinBox->setRange(10, 1000);
+
+  ViewWidget *viewWidget = new ViewWidget(this);
+
+  // connect to "genterate" button
+  connect(ui->generate_pushButton, &QPushButton::released, this, &MainWindow::generate);
+//  connect(this, &MainWindow::paramChange, m_viewWidge, &ViewWidget::dataReceive);
 }
 
 MainWindow::~MainWindow()
@@ -13,3 +28,69 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
+void MainWindow::generate()
+{
+  // v1
+  int k = ui->k_spinBox->value();
+  int speed = ui->speed_spinBox->value();
+  int samplePerCluster = ui->sample_spinBox->value();
+  // v2
+  int dim = ui->dim_comboBox->currentText().toInt();
+  QString dist_method = ui->dist_m_comboBox->currentText();
+  QString cent_method = ui->cent_m_comboBox->currentText();
+  // v3
+  float point_size = ui->point_size_doubleSpinBox->value();
+  float center_size = ui->cent_size_doubleSpinBox->value();
+  // v4
+  QString filename = ui->file_name_comboBox->currentText();
+  bool if_file_data = ui->if_file_checkBox->checkState();
+  // bot
+  int num_iter = ui->iter_spinBox->value();
+  bool if_step = ui->each_step_checkBox->checkState();
+
+  qDebug() << "Sending signal...";
+
+  if (dim > 2) {
+    the_zoom = 600;
+  } else {
+    if (if_file_data) {
+      the_zoom = 4;
+    } else {
+      the_zoom = 500;
+    }
+  }
+
+
+  ui->viewWidget->dataReceive(k, speed, samplePerCluster,
+                   dim, dist_method, cent_method,
+                   point_size, center_size,
+                   filename, if_file_data, num_iter, if_step, the_zoom);
+
+}
+
+void MainWindow::zoomIn()
+{
+  // zoom in by 2
+  setZoom(ui->viewWidget->zoom() * 0.5);
+}
+
+void MainWindow::zoomOut()
+{
+  // zoom out by 2
+  setZoom(ui->viewWidget->zoom() * 2.0f);
+}
+
+void MainWindow::zoomActualSize()
+{
+  // reset zoom
+  qDebug() << "zoomActualSize() Called!";
+  setZoom(the_zoom);
+}
+
+void MainWindow::setZoom(int zoom)
+{
+  ui->viewWidget->setZoom(zoom);
+
+  ui->actionActual_Size->setEnabled(ui->viewWidget->zoom() != the_zoom);
+  ui->actionZoom_Out->setEnabled(ui->viewWidget->zoom() != the_zoom);
+}

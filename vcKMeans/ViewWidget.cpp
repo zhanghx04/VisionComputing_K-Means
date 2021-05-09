@@ -14,11 +14,14 @@
 #include <algorithm>
 #include <stdio.h>
 #include <QThread>
+#include <QTextStream>
+
+#include <QPainter>
 
 #include <QDebug>
 
 
-ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(parent, f)
+ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(parent, f), m_zoom(1)
 {
   auto turntableTimer = new QTimer(this);
   turntableTimer->callOnTimeout(this, &ViewWidget::updateTurntable);
@@ -28,18 +31,77 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
 
   m_elapsedTimer.start();
 
-
   // seeding the rand() function
   srand(time(NULL));
 
 //  samplePointsGenteration();
 
+  m_fpsTimer.start();
+}
+
+int ViewWidget::zoom() const
+{
+  return m_zoom;
+}
+
+
+float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
+{
+  float millisecondsPerRotation {secondsPerRotation*1000.0f};
+  float t {msTime/millisecondsPerRotation};
+
+  return (t-qFloor(t)) * 360.0f;
+}
+
+void ViewWidget::dataReceive(int k, int speed, int samplePerCluster, int dim,
+                             QString dist_method, QString cent_method,
+                             float point_size, float center_size, QString filename,
+                             bool if_file_data, int num_iter, bool if_step, float the_zoom)
+{
+  m_k = k;
+  m_speed = speed;
+  m_samplePerCluster = samplePerCluster;
+  m_dim = dim;
+
+  if (dist_method == "l1-norm") {
+    m_dist_method = 1;
+  } else if (dist_method == "l2-norm") {
+    m_dist_method = 2;
+  } else if (dist_method == "l-infinity-norm") {
+    m_dist_method = 3;
+  }
+
+  if (cent_method == "random_real") {
+    m_cent_method = 1;
+  } else if (cent_method == "random_sample") {
+    m_cent_method = 2;
+  } else if (cent_method == "k-means++") {
+    m_cent_method = 3;
+  }
+
+  m_pointSize = point_size;
+  m_centerSize = center_size;
+  m_filename = filename;
+
+  m_isTXTfile = if_file_data;
+  m_num_iter = num_iter;
+  m_ifStep = if_step;
+
+  m_zoom = the_zoom;
+
+  initialData();
+
+
+  qDebug() << k << speed << samplePerCluster <<
+              dim << dist_method << cent_method <<
+              point_size << center_size <<
+              filename << if_file_data <<
+              if_step << m_zoom;
+
+  qDebug() << "[INFO] Data loading...";
   //////////////////////////////
   /// IF read data from file ///
   //////////////////////////////
-  m_isTXTfile = true;
-
-  qDebug() << "[INFO] Data loading...";
   if (m_isTXTfile) {
     /*
      * data file name:
@@ -52,9 +114,9 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
      *        f_corners_2.txt
      *        g_overlapping.txt
      */
-    dataGenerateFromFile("g_overlapping.txt");
+    dataGenerateFromFile(m_filename);
   } else {
-    dataGeneration(100, 3); // ( samplePerCluster, dimension)
+    dataGeneration(m_samplePerCluster, m_dim); // ( samplePerCluster, dimension)
   }
   qDebug() << "[INFO] Total number of samples:" << m_totalSample;
   qDebug() << "[INFO]       Dimension of Data:" << m_dim << "Dimension";
@@ -65,24 +127,13 @@ ViewWidget::ViewWidget(QWidget *parent, Qt::WindowFlags f) : QOpenGLWidget(paren
    *    1. l1-norm
    *    2. l2-norm
    *    3. l-infinity-norm
+   *
    * center_initial_method:
    *    1. random_real
    *    2. random_sample
    *    3. k-means++
    */
   doKmeans(5, "l2-norm", "random_real");
-
-
-
-  m_fpsTimer.start();
-}
-
-float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
-{
-  float millisecondsPerRotation {secondsPerRotation*1000.0f};
-  float t {msTime/millisecondsPerRotation};
-
-  return (t-qFloor(t)) * 360.0f;
 }
 
 void ViewWidget::samplePointsGenteration()
@@ -119,6 +170,17 @@ void ViewWidget::samplePointsGenteration()
       count++;
     }
   }
+}
+
+void ViewWidget::initialData()
+{
+  // clean m_points, m_colors, m_centers, and m_centerColors
+  m_points.clear();
+  m_colors.clear();
+  m_centers.clear();
+  m_centerColors.clear();
+
+  account = 0;
 }
 
 void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
@@ -221,6 +283,21 @@ void ViewWidget::dataGenerateFromFile(QString filename)
 
   m_ave_point[0] /= m_totalSample;
   m_ave_point[1] /= m_totalSample;
+}
+
+void ViewWidget::saveData(QString filename)
+{
+  // save file
+  QFile ffile("/Users/haoxiangzhang/Documents/GitHub/VisionComputing-KMeasn/vcKMeans/dataset/"+filename);
+  if (ffile.open(QIODevice::ReadWrite)) {
+    QTextStream stream(&ffile);
+    stream << m_totalSample << Qt::endl;
+    stream << m_dim << Qt::endl;
+    for (int i=0; i<m_totalSample; ++i){
+      stream << m_points[i*3] << " " << m_points[i*3+1] << " " << m_points[i*3+2] << Qt::endl;
+    }
+    ffile.close();
+  }
 }
 
 void ViewWidget::initialCenters()
@@ -385,8 +462,19 @@ void ViewWidget::doKmeans(int k, QString distance_function, QString center_initi
   qDebug() << "Centers: " << m_centers;
 
   ttime->callOnTimeout(this, &ViewWidget::k_means_iter);
-  //    ttime->setSingleShot(true);
   ttime->start(500);
+}
+
+void ViewWidget::setZoom(int zoom)
+{
+  // Only update on change
+  if(m_zoom != zoom)
+  {
+    // Ensure zoom is 1 or greater
+    m_zoom = qMax(1, zoom);
+  }
+
+  qDebug() << m_zoom;
 }
 
 void ViewWidget::initializeGL()
@@ -396,7 +484,7 @@ void ViewWidget::initializeGL()
 
 //  glDepthFunc(GL_LEQUAL); // this change to " if (z = D(i,j)) "
   glEnable(GL_DEPTH_TEST);
-  glPointSize(3.0f);
+  glPointSize(m_pointSize);
   glEnable(GL_POINT_SMOOTH);
 
 
@@ -423,6 +511,7 @@ void ViewWidget::initializeGL()
 }
 
 void ViewWidget::paintGL() {
+//  qDebug() << m_points;
   glEnable(GL_DEPTH_TEST);
 
   QOpenGLShaderProgram program;
@@ -444,8 +533,7 @@ void ViewWidget::paintGL() {
 
   int vertexLocation = program.attributeLocation("vertex");
   int matrixLocation = program.uniformLocation("matrix");
-  int colorLocation = program.uniformLocation("color");
-
+//  int colorLocation = program.uniformLocation("color");
 
   //
   // Set eye position
@@ -462,7 +550,7 @@ void ViewWidget::paintGL() {
     if (m_isTXTfile) {
       pmvMatrix.lookAt({0, 0, 4}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
     } else {
-      pmvMatrix.lookAt({255, 255, 500}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
+      pmvMatrix.lookAt({255, 255, m_zoom}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
     }
   }
 
@@ -480,11 +568,11 @@ void ViewWidget::paintGL() {
   glDrawArrays(GL_POINTS, 0, m_points.count()/3);
 
   // draw centers
-  glPointSize(10.0f);
+  glPointSize(m_centerSize);
   m_pointProgram.setAttributeArray("vertex", m_centers.constData(), 3); // tuple size: 3 (x,y,z)
   m_pointProgram.setAttributeArray("color", m_centerColors.constData(), 3); // tuple size: 3 (r,g,b)
   glDrawArrays(GL_POINTS, 0, m_centers.count()/3);
-  glPointSize(3.0f);
+  glPointSize(m_pointSize);
 
   m_pointProgram.disableAttributeArray("vertex");
   m_pointProgram.disableAttributeArray("color");
@@ -604,5 +692,7 @@ void ViewWidget::k_means_iter()
   account++;
   qDebug() << "[K-MEANS] iteration -" << account;
 
-
+  update();
 }
+
+
