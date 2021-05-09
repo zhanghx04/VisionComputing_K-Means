@@ -32,8 +32,8 @@ Specifications for Part 1 include the following:
 5. Use Qt to visualize the data and K-Means clustering using 2D point rendering. User interaction features include:
     - [x] Visualize the evolution of the class membership of each point using colors for each iteration of K-Means loop and with cluster centers marked.
     - [ ] Allow the user to step thru the animation one iteration at a time or using a speed control; otherwise the updates/animation will be too fast.
-    - [ ] Allow zooming and panning to move around the 2D world.
-    - [ ] Allow the user to change the size of the 2D points.
+    - [x] Allow zooming and panning to move around the 2D world.
+    - [x] Allow the user to change the size of the 2D points.
 6. Draw the updated centroid (mean) of each cluster, then draw the updated class membership value/color for each observation sample.
     - [ ] Allow the user to step thru the updates to interactively see which feature points change their class membership.
     - [ ] Allow the user to go backward one step in the animation.
