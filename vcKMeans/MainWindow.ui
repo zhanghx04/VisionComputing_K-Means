@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>669</height>
+    <width>999</width>
+    <height>658</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -29,7 +29,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="k_spinBox"/>
+           <widget class="QSpinBox" name="k_spinBox">
+            <property name="value">
+             <number>3</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -43,7 +47,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="speed_spinBox"/>
+           <widget class="QSpinBox" name="speed_spinBox">
+            <property name="value">
+             <number>99</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -57,11 +65,22 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="sample_spinBox"/>
+           <widget class="QSpinBox" name="sample_spinBox">
+            <property name="value">
+             <number>30</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line_v3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_v2">
@@ -153,14 +172,14 @@
        </layout>
       </item>
       <item>
-       <widget class="Line" name="line_v">
+       <widget class="Line" name="line_v1">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_v3">
+       <layout class="QVBoxLayout" name="verticalLayout_v4">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_file_name">
           <item>
@@ -232,6 +251,60 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="Line" name="line_v2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_v3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_point_size">
+          <item>
+           <widget class="QLabel" name="point_size_label">
+            <property name="text">
+             <string>Point Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="point_size_doubleSpinBox">
+            <property name="value">
+             <double>3.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_centroid_size">
+          <item>
+           <widget class="QLabel" name="cent_size_label">
+            <property name="text">
+             <string>Centroid Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="cent_size_doubleSpinBox">
+            <property name="value">
+             <double>10.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Start K-Means</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
     <item>
@@ -245,29 +318,79 @@
      <widget class="ViewWidget" name="viewWidget"/>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_bottom">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_step_button">
+       <layout class="QVBoxLayout" name="verticalLayout_iter">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_iter">
+          <item>
+           <widget class="QLabel" name="iter_label">
+            <property name="text">
+             <string>Number of iterations:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="iter_spinBox"/>
+          </item>
+         </layout>
+        </item>
         <item>
          <widget class="QCheckBox" name="each_step_checkBox">
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
           <property name="text">
            <string>Go Each Step</string>
           </property>
          </widget>
         </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QPushButton" name="prev_pushButton">
-          <property name="text">
-           <string>Previous</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="zoomIn_pushButton">
+            <property name="text">
+             <string>Zoom In</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="zoomOut_pushButton">
+            <property name="text">
+             <string>Zoom Out</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="zoomResize_pushButton">
+            <property name="text">
+             <string>Resize</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="next_pushButton">
-          <property name="text">
-           <string>Next</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="prev_pushButton">
+            <property name="text">
+             <string>Previous</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="next_pushButton">
+            <property name="text">
+             <string>Next</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -280,12 +403,36 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>999</width>
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionActual_Size"/>
+    <addaction name="actionZoom_In"/>
+    <addaction name="actionZoom_Out"/>
+   </widget>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionActual_Size">
+   <property name="text">
+    <string>Actual Size</string>
+   </property>
+  </action>
+  <action name="actionZoom_In">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionZoom_Out">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -295,5 +442,59 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>zoomIn_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>583</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomOut_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>745</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zoomResize_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>zoomActualSize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>908</x>
+     <y>481</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>zoomActualSize()</slot>
+  <slot>zoomIn()</slot>
+  <slot>zoomOut()</slot>
+ </slots>
 </ui>
