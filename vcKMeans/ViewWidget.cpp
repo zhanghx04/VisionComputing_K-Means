@@ -60,6 +60,16 @@ float ViewWidget::horizontal() const
   return m_h_direct;
 }
 
+float ViewWidget::speed() const
+{
+  return m_speed;
+}
+
+float ViewWidget::energy() const
+{
+  return m_energy;
+}
+
 
 float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
 {
@@ -76,25 +86,15 @@ void ViewWidget::dataReceive(int k, int speed, int samplePerCluster, int dim,
                              float the_zoom, float v_direct, float h_direct)
 {
   m_k = k;
-  m_speed = speed;
+  m_timer = speed;
   m_samplePerCluster = samplePerCluster;
   m_dim = dim;
-
-  if (dist_method == "l1-norm") {
-    m_dist_method = 1;
-  } else if (dist_method == "l2-norm") {
-    m_dist_method = 2;
-  } else if (dist_method == "l-infinity-norm") {
-    m_dist_method = 3;
+  if (m_dim > 2) {
+    m_spin = true;
   }
 
-  if (cent_method == "random_real") {
-    m_cent_method = 1;
-  } else if (cent_method == "random_sample") {
-    m_cent_method = 2;
-  } else if (cent_method == "k-means++") {
-    m_cent_method = 3;
-  }
+  m_dist_m = dist_method;
+  m_cent_m = cent_method;
 
   m_pointSize = point_size;
   m_centerSize = center_size;
@@ -152,7 +152,7 @@ void ViewWidget::dataReceive(int k, int speed, int samplePerCluster, int dim,
    *    2. random_sample
    *    3. k-means++
    */
-  doKmeans(5, "l2-norm", "random_real");
+  doKmeans(m_k, m_dist_m, m_cent_m);
 }
 
 void ViewWidget::samplePointsGenteration()
@@ -264,6 +264,14 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
     count++;
   }
   m_totalSample = samplesPerCluster*4;
+  for (int i=0; i<m_totalSample; ++i){
+    m_ave_point[0] += m_points[i*3 + 0];
+    m_ave_point[1] += m_points[i*3 + 1];
+    m_ave_point[2] += m_points[i*3 + 2];
+  }
+  m_ave_point[0] /= m_totalSample;
+  m_ave_point[1] /= m_totalSample;
+  m_ave_point[2] /= m_totalSample;
 }
 
 void ViewWidget::dataGenerateFromFile(QString filename)
@@ -398,8 +406,7 @@ void ViewWidget::initialCenters()
   if (m_cent_method == 3) {
     /* 3 - K-Means++ distance based (D^2) careful seeding */
 
-    float * distances;
-    distances = (float*) malloc(sizeof(float) * m_totalSample);
+    QVector<float> distances;
 
     // randomly select cluster centroids in data points
     m_cent_method = 2;
@@ -413,9 +420,10 @@ void ViewWidget::initialCenters()
       float sum {0.0f};
 
       for (int j=0; j<m_totalSample; ++j) {
-        distances[j] = nearestDistance(m_points.mid(j*3, 3), m_centers);
+        distances.append(nearestDistance(m_points.mid(j*3, 3), m_centers));
         sum += distances[j];
       }
+
 
       // find a random distance within the span of the total distance.
       sum = sum * float(rand()/(RAND_MAX-1));
@@ -431,7 +439,6 @@ void ViewWidget::initialCenters()
         }
       }
     }
-    free(distances);
   }
 
   // Generate random color for centers
@@ -498,7 +505,7 @@ int ViewWidget::find_closest(QVector<float> point)
    */
   QVector<float> dists;
   // go through each center and get the distance
-  for (int i=0; i<m_centerColors.length()/3; ++i){
+  for (int i=0; i<m_k; ++i){
     float dist {0.0};
     QVector<float> center = m_centers.mid(i*3, 3);
 
@@ -507,8 +514,9 @@ int ViewWidget::find_closest(QVector<float> point)
     center[1] = qAbs(center[1] - point[1]);  // y
     center[2] = qAbs(center[2] - point[2]);  // z
 
+
+
     if (m_dist_method == 1){
-      //
       dist = center[0] + center[1] + center[2];
     }
 
@@ -540,10 +548,8 @@ void ViewWidget::doKmeans(int k, QString distance_function, QString center_initi
   // Initial centers
   initialCenters();
 
-  qDebug() << "Centers: " << m_centers;
-
   ttime->callOnTimeout(this, &ViewWidget::k_means_iter);
-  ttime->start(500);
+  ttime->start(m_timer);
 }
 
 void ViewWidget::setZoom(int zoom)
@@ -644,7 +650,7 @@ void ViewWidget::paintGL() {
   pmvMatrix.perspective(440.0f, float(width())/height(), 1.0f, 10000.0f);
 
   if (m_spin) {
-    pmvMatrix.lookAt({m_h_direct, m_v_direct, m_zoom}, {150, 150, 0}, {0, 1, 0});
+    pmvMatrix.lookAt({m_h_direct, m_v_direct, m_zoom}, {50, 150, 20}, {0, 1, 0});
 //    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.5f, 1.0f, 0.5f});
     pmvMatrix.rotate(m_angle, {0.5f, 1.0f, 0.5f});
   } else {
@@ -742,6 +748,10 @@ void ViewWidget::updateTurntable()
 
 void ViewWidget::k_means_iter()
 {
+  record_centers.append(m_centers);
+  record_centerColor.append(m_centerColors);
+  record_pointColor.append(m_colors);
+
   QVector<int> closest; // save the closest center idx for each point
 
   // go through each point and find their closest center
@@ -753,7 +763,10 @@ void ViewWidget::k_means_iter()
     m_colors[i*3 + 0] = m_centerColors[idx*3 + 0]/3*2;
     m_colors[i*3 + 1] = m_centerColors[idx*3 + 1]/3*2;
     m_colors[i*3 + 2] = m_centerColors[idx*3 + 2]/3*2;
+
   }
+
+
 
   // update new center
   for (int i=0; i<m_k; ++i) { // go each center
@@ -782,19 +795,20 @@ void ViewWidget::k_means_iter()
     }
   }
 
-
   account++;
   qDebug() << "[K-MEANS] iteration -" << account;
 
   // check if account to given iteration
   if (m_ifStep) {
     if (account == m_num_iter) {
+      emit sendResult(11, 22);
       ttime->stop();
       return;
     }
   }
   // check if centers are not move
   if (m_centers == centers_ref) {
+    emit sendResult(11, 22);
 //    qDebug() << "[INFO] K-Means Algorithm finished.";
     ttime->stop();
     return;

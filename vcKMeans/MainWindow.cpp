@@ -12,15 +12,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
   ui->setupUi(this);
 
-  // set range of speed and sample per cluster
-  ui->speed_spinBox->setRange(100, 10000);
-  ui->sample_spinBox->setRange(10, 1000);
-
   ViewWidget *viewWidget = new ViewWidget(this);
+
+  // set range of speed and sample per cluster
+  ui->timer_spinBox->setRange(100, 10000);
+  ui->sample_spinBox->setRange(10, 1000);
 
   // connect to "genterate" button
   connect(ui->generate_pushButton, &QPushButton::released, this, &MainWindow::generate);
-//  connect(this, &MainWindow::paramChange, m_viewWidge, &ViewWidget::dataReceive);
 }
 
 MainWindow::~MainWindow()
@@ -32,7 +31,7 @@ void MainWindow::generate()
 {
   // v1
   int k = ui->k_spinBox->value();
-  int speed = ui->speed_spinBox->value();
+  int timer = ui->timer_spinBox->value();
   int samplePerCluster = ui->sample_spinBox->value();
   // v2
   int dim = ui->dim_comboBox->currentText().toInt();
@@ -50,14 +49,14 @@ void MainWindow::generate()
 
   qDebug() << "Sending signal...";
 
-  if (dim > 2) {
-    the_zoom = 600;
-    v_direct = 455;
-    h_direct = 455;
+  if (dim == 3) {
+    the_zoom = 800;
+    v_direct = 55;
+    h_direct = 155;
   } else {
     if (if_file_data) {
       the_zoom = 4;
-      v_direct = 0;
+      v_direct = 10;
       h_direct = 0;
     } else {
       the_zoom = 500;
@@ -66,12 +65,21 @@ void MainWindow::generate()
     }
   }
 
+  if (if_step) timer = 0;
 
-  ui->viewWidget->dataReceive(k, speed, samplePerCluster,
+
+  ui->viewWidget->dataReceive(k, timer, samplePerCluster,
                    dim, dist_method, cent_method,
                    point_size, center_size,
                    filename, if_file_data, num_iter, if_step, the_zoom, v_direct, h_direct);
 
+}
+
+void MainWindow::displayResult()
+{
+  qDebug() << "displaying";
+  ui->speed_lineEdit->setText(QString::number(ui->viewWidget->speed()));
+  ui->energy_lineEdit->setText(QString::number(ui->viewWidget->energy()));
 }
 
 void MainWindow::zoomIn()

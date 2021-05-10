@@ -16,6 +16,8 @@ public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
 
+
+
 public slots:
   void zoomIn();
   void zoomOut();
@@ -37,8 +39,12 @@ public slots:
 
   void generate();
 
+  void displayResult();
+
+
 private:
   Ui::MainWindow *ui;
+
   float the_zoom;
   float v_direct;
   float h_direct;

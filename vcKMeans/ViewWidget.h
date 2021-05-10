@@ -7,6 +7,7 @@
 
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QMainWindow>
 
 #include "MainWindow.h"
 
@@ -21,6 +22,8 @@ public: // *parent = nullptr
   float turn() const;
   float vertical() const;
   float horizontal() const;
+  float speed() const;
+  float energy() const;
 
   float angleForTime(qint64 msTime, float secondsPerRotation) const;
 
@@ -53,6 +56,9 @@ public slots:
                    QString filename, bool if_file_data, int num_iter, bool if_step,
                    float the_zoom, float v_direct, float h_direct);
 
+signals:
+  void sendResult(float speed, float energy);
+
 protected:
   void initializeGL() override;
   void paintGL() override;
@@ -61,6 +67,8 @@ private slots:
   void updateTurntable();
 
 private:
+  QMainWindow *main;
+
   float m_zoom;
   float m_angle = 0.0f;
   float m_v_direct = 0.0f;
@@ -86,6 +94,9 @@ private:
 
 
   // K-Means
+  QString m_dist_m;
+  QString m_cent_m;
+
   QTimer *ttime = new QTimer(this);
   bool m_isTXTfile = false;
   bool m_ifStep = false;
@@ -103,11 +114,20 @@ private:
   int m_totalSample;  // total number of points
   int m_samplePerCluster; // how many sample geteraed for each cluster.
   int m_k;            // number of cluster
-  int m_speed;        // how fast for each iteration pause (timer)
+  int m_timer;        // how fast for each iteration pause (timer)
   int m_dist_method;  // distance method
   int m_cent_method;  // center initial method
   QVector<float> m_centers;       // store centers
   QVector<float> m_centerColors;  // save centers' color
+
+  float m_speed = 15;
+  float m_energy = 22;
+
+  // for storing info of each iteration
+  QVector< QVector<float>> record_centers;
+  QVector< QVector<float>> record_centerColor;
+  QVector< QVector<float>> record_pointColor;
+
 
 };
 

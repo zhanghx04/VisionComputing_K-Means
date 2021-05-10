@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>999</width>
-    <height>658</height>
+    <width>1138</width>
+    <height>770</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -23,8 +23,14 @@
          <layout class="QHBoxLayout" name="horizontalLayout_k">
           <item>
            <widget class="QLabel" name="k_label">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
             <property name="text">
              <string>K:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -40,14 +46,17 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_speed">
           <item>
-           <widget class="QLabel" name="speed_label">
+           <widget class="QLabel" name="timer_label">
             <property name="text">
-             <string>Speed(ms): </string>
+             <string>Timer(ms): </string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="speed_spinBox">
+           <widget class="QSpinBox" name="timer_spinBox">
             <property name="value">
              <number>99</number>
             </property>
@@ -61,6 +70,9 @@
            <widget class="QLabel" name="sample_label">
             <property name="text">
              <string>Sample per Cluster:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -122,12 +134,12 @@
            <widget class="QComboBox" name="dist_m_comboBox">
             <item>
              <property name="text">
-              <string>l1_norm</string>
+              <string>l1-norm</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>l2_norm</string>
+              <string>l2-norm</string>
              </property>
             </item>
             <item>
@@ -313,6 +325,86 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="speed_label">
+            <property name="text">
+             <string>Speed:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="speed_lineEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLabel" name="energy_label">
+            <property name="text">
+             <string>Energy:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="energy_lineEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPushButton" name="speed_energy_pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Speed 
+ and 
+ Energy</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QVBoxLayout" name="verticalLayout_iter">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_iter">
@@ -471,7 +563,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>999</width>
+     <width>1138</width>
      <height>21</height>
     </rect>
    </property>
@@ -668,6 +760,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>speed_energy_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>displayResult()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>234</x>
+     <y>623</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>zoomActualSize()</slot>
@@ -680,5 +788,6 @@
   <slot>goLeft()</slot>
   <slot>goRight()</slot>
   <slot>goCenter()</slot>
+  <slot>displayResult()</slot>
  </slots>
 </ui>
