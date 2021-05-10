@@ -172,6 +172,53 @@
        </layout>
       </item>
       <item>
+       <widget class="Line" name="line_v2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_v3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_point_size">
+          <item>
+           <widget class="QLabel" name="point_size_label">
+            <property name="text">
+             <string>Point Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="point_size_doubleSpinBox">
+            <property name="value">
+             <double>3.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_centroid_size">
+          <item>
+           <widget class="QLabel" name="cent_size_label">
+            <property name="text">
+             <string>Centroid Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="cent_size_doubleSpinBox">
+            <property name="value">
+             <double>10.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="Line" name="line_v1">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -246,60 +293,6 @@
          <widget class="QPushButton" name="generate_pushButton">
           <property name="text">
            <string>Generate Data</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="Line" name="line_v2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_v3">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_point_size">
-          <item>
-           <widget class="QLabel" name="point_size_label">
-            <property name="text">
-             <string>Point Size:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="point_size_doubleSpinBox">
-            <property name="value">
-             <double>3.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_centroid_size">
-          <item>
-           <widget class="QLabel" name="cent_size_label">
-            <property name="text">
-             <string>Centroid Size:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="cent_size_doubleSpinBox">
-            <property name="value">
-             <double>10.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Start K-Means</string>
           </property>
          </widget>
         </item>
