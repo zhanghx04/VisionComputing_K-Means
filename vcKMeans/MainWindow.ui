@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -311,11 +311,21 @@
      <widget class="ViewWidget" name="viewWidget"/>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_iter">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_iter">
+          <item>
+           <widget class="QCheckBox" name="each_step_checkBox">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>Go Each Step</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QLabel" name="iter_label">
             <property name="text">
@@ -325,45 +335,6 @@
           </item>
           <item>
            <widget class="QSpinBox" name="iter_spinBox"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="each_step_checkBox">
-          <property name="layoutDirection">
-           <enum>Qt::RightToLeft</enum>
-          </property>
-          <property name="text">
-           <string>Go Each Step</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QPushButton" name="zoomIn_pushButton">
-            <property name="text">
-             <string>Zoom In</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="zoomOut_pushButton">
-            <property name="text">
-             <string>Zoom Out</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="zoomResize_pushButton">
-            <property name="text">
-             <string>Resize</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </item>
@@ -387,6 +358,110 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="zoomOut_pushButton">
+            <property name="text">
+             <string>Zoom Out</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="zoomIn_pushButton">
+            <property name="text">
+             <string>Zoom In</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="zoomResize_pushButton">
+            <property name="text">
+             <string>Resize</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="turn_left_pushButton">
+            <property name="text">
+             <string>&lt;&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="turn_right_pushButton">
+            <property name="text">
+             <string>&gt;&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QPushButton" name="left_pushButton">
+          <property name="text">
+           <string>Left</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="up_pushButton">
+            <property name="text">
+             <string>Up</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="center_pushButton">
+            <property name="text">
+             <string>Center</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="down_pushButton">
+            <property name="text">
+             <string>Down</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="right_pushButton">
+          <property name="text">
+           <string>Right</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
    </layout>
@@ -404,9 +479,6 @@
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionActual_Size"/>
-    <addaction name="actionZoom_In"/>
-    <addaction name="actionZoom_Out"/>
    </widget>
    <addaction name="menuView"/>
   </widget>
@@ -484,10 +556,129 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>turn_left_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>turnLeft()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>623</x>
+     <y>530</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>turn_right_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>turnRight()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>867</x>
+     <y>530</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>center_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>goCenter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>529</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>down_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>goDown()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>584</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>left_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>goLeft()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>724</x>
+     <y>530</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>right_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>goRight()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>937</x>
+     <y>530</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>up_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>goUp()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>830</x>
+     <y>474</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>499</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>zoomActualSize()</slot>
   <slot>zoomIn()</slot>
   <slot>zoomOut()</slot>
+  <slot>turnLeft()</slot>
+  <slot>turnRight()</slot>
+  <slot>goUp()</slot>
+  <slot>goDown()</slot>
+  <slot>goLeft()</slot>
+  <slot>goRight()</slot>
+  <slot>goCenter()</slot>
  </slots>
 </ui>

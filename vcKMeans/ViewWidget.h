@@ -18,6 +18,9 @@ public: // *parent = nullptr
   ViewWidget(QWidget *parent, Qt::WindowFlags f = Qt::WindowFlags());
 
   int zoom() const;
+  float turn() const;
+  float vertical() const;
+  float horizontal() const;
 
   float angleForTime(qint64 msTime, float secondsPerRotation) const;
 
@@ -41,11 +44,14 @@ public: // *parent = nullptr
 
 public slots:
   void setZoom(int zoom);
+  void setTurn(float angle);
+  void setMove(float step, int direction);
   // receive data from GUI from MainWindow
   void dataReceive(int k, int speed, int samplePerCluster,
                    int dim, QString dist_method, QString cent_method,
                    float point_size, float center_size,
-                   QString filename, bool if_file_data, int num_iter, bool if_step, float the_zoom);
+                   QString filename, bool if_file_data, int num_iter, bool if_step,
+                   float the_zoom, float v_direct, float h_direct);
 
 protected:
   void initializeGL() override;
@@ -56,6 +62,9 @@ private slots:
 
 private:
   float m_zoom;
+  float m_angle = 0.0f;
+  float m_v_direct = 0.0f;
+  float m_h_direct = 0.0f;
 
   float m_turntableAngle = 0.0f;
 
@@ -74,6 +83,7 @@ private:
   QElapsedTimer m_fpsTimer;
   int m_frameCount;
   float m_fps;
+
 
   // K-Means
   QTimer *ttime = new QTimer(this);

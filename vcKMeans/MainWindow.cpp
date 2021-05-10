@@ -52,11 +52,17 @@ void MainWindow::generate()
 
   if (dim > 2) {
     the_zoom = 600;
+    v_direct = 455;
+    h_direct = 455;
   } else {
     if (if_file_data) {
       the_zoom = 4;
+      v_direct = 0;
+      h_direct = 0;
     } else {
       the_zoom = 500;
+      v_direct = 255;
+      h_direct = 255;
     }
   }
 
@@ -64,7 +70,7 @@ void MainWindow::generate()
   ui->viewWidget->dataReceive(k, speed, samplePerCluster,
                    dim, dist_method, cent_method,
                    point_size, center_size,
-                   filename, if_file_data, num_iter, if_step, the_zoom);
+                   filename, if_file_data, num_iter, if_step, the_zoom, v_direct, h_direct);
 
 }
 
@@ -93,4 +99,53 @@ void MainWindow::setZoom(int zoom)
 
   ui->actionActual_Size->setEnabled(ui->viewWidget->zoom() != the_zoom);
   ui->actionZoom_Out->setEnabled(ui->viewWidget->zoom() != the_zoom);
+}
+
+void MainWindow::turnLeft()
+{
+  setTurn(ui->viewWidget->turn() - 10);
+}
+
+void MainWindow::turnRight()
+{
+  setTurn(ui->viewWidget->turn() + 10);
+}
+
+void MainWindow::setTurn(float turn)
+{
+  ui->viewWidget->setTurn(turn);
+
+  ui->turn_left_pushButton->setEnabled(ui->dim_comboBox->currentText().toInt() == 3);
+  ui->turn_right_pushButton->setEnabled(ui->dim_comboBox->currentText().toInt() == 3);
+}
+
+void MainWindow::goUp()
+{
+  setMove(ui->viewWidget->vertical() + 100, 1);
+}
+
+void MainWindow::goDown()
+{
+  setMove(ui->viewWidget->vertical() - 100, 1);
+}
+
+void MainWindow::goLeft()
+{
+  setMove(ui->viewWidget->horizontal() - 100, 2);
+}
+
+void MainWindow::goRight()
+{
+  setMove(ui->viewWidget->horizontal() + 100, 2);
+}
+
+void MainWindow::goCenter()
+{
+  setMove(0, 1);
+  setMove(0, 2);
+}
+
+void MainWindow::setMove(float step, int direction)
+{
+  ui->viewWidget->setMove(step, direction);
 }

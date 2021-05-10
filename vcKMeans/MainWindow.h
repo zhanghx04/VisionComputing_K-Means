@@ -20,15 +20,28 @@ public slots:
   void zoomIn();
   void zoomOut();
   void zoomActualSize();
-
   void setZoom(int zoom);
+
+  // turning
+  void turnLeft();
+  void turnRight();
+  void setTurn(float turn);
+
+  // direction
+  void goUp();
+  void goDown();
+  void goLeft();
+  void goRight();
+  void goCenter();
+  void setMove(float step, int direction);
 
   void generate();
 
 private:
   Ui::MainWindow *ui;
   float the_zoom;
-
+  float v_direct;
+  float h_direct;
 };
 #endif // MAINWINDOW_H
 

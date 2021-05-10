@@ -45,6 +45,21 @@ int ViewWidget::zoom() const
   return m_zoom;
 }
 
+float ViewWidget::turn() const
+{
+  return m_angle;
+}
+
+float ViewWidget::vertical() const
+{
+  return m_v_direct;
+}
+
+float ViewWidget::horizontal() const
+{
+  return m_h_direct;
+}
+
 
 float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
 {
@@ -57,7 +72,8 @@ float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
 void ViewWidget::dataReceive(int k, int speed, int samplePerCluster, int dim,
                              QString dist_method, QString cent_method,
                              float point_size, float center_size, QString filename,
-                             bool if_file_data, int num_iter, bool if_step, float the_zoom)
+                             bool if_file_data, int num_iter, bool if_step,
+                             float the_zoom, float v_direct, float h_direct)
 {
   m_k = k;
   m_speed = speed;
@@ -89,6 +105,8 @@ void ViewWidget::dataReceive(int k, int speed, int samplePerCluster, int dim,
   m_ifStep = if_step;
 
   m_zoom = the_zoom;
+  m_v_direct = v_direct;
+  m_h_direct = h_direct;
 
   initialData();
 
@@ -182,6 +200,9 @@ void ViewWidget::initialData()
   m_centerColors.clear();
 
   account = 0;
+  m_angle = 0.0f;
+  m_v_direct = 0.0f;
+  m_h_direct = 0.0f;
 }
 
 void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
@@ -304,7 +325,10 @@ void ViewWidget::saveData(QString filename)
 float ViewWidget::dist2(QVector<float> point1, QVector<float> point2)
 {
   /* This function return the square euclidean distance between two points */
-  return qPow(point1[0], 2) + qPow(point1[1], 2) + qPow(point1[2], 2);
+  float x = point1[0] - point2[0];
+  float y = point1[1] - point2[1];
+  float z = point1[2] - point2[2];
+  return qPow(x, 2) + qPow(y, 2) + qPow(z, 2);
 }
 
 float ViewWidget::nearestDistance(QVector<float> point, QVector<float> centers)
@@ -394,7 +418,7 @@ void ViewWidget::initialCenters()
       }
 
       // find a random distance within the span of the total distance.
-      sum = sum* rand()/(RAND_MAX-1);
+      sum = sum * float(rand()/(RAND_MAX-1));
 
       // Assign the centroids, the point with the largest distance
       for (int j=0; j<m_totalSample; ++j) {
@@ -534,6 +558,25 @@ void ViewWidget::setZoom(int zoom)
   qDebug() << m_zoom;
 }
 
+void ViewWidget::setTurn(float angle)
+{
+  if (angle < 0) {
+    m_angle = 360 + angle;
+  } else {
+    m_angle = angle - 360.0;
+  }
+
+  qDebug() << m_angle;
+}
+
+void ViewWidget::setMove(float step, int direction)
+{
+  // vertical
+  if (direction == 1) m_v_direct = step;
+  // horizontal
+  if (direction == 2) m_h_direct = step;
+}
+
 void ViewWidget::initializeGL()
 {
   initializeOpenGLFunctions();
@@ -601,13 +644,14 @@ void ViewWidget::paintGL() {
   pmvMatrix.perspective(440.0f, float(width())/height(), 1.0f, 10000.0f);
 
   if (m_spin) {
-    pmvMatrix.lookAt({455, 455, 600}, {150, 150, 0}, {0, 1, 0});
-    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.5f, 1.0f, 0.5f});
+    pmvMatrix.lookAt({m_h_direct, m_v_direct, m_zoom}, {150, 150, 0}, {0, 1, 0});
+//    pmvMatrix.rotate(angleForTime(m_elapsedTimer.elapsed(), 25), {0.5f, 1.0f, 0.5f});
+    pmvMatrix.rotate(m_angle, {0.5f, 1.0f, 0.5f});
   } else {
     if (m_isTXTfile) {
-      pmvMatrix.lookAt({0, 0, 4}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
+      pmvMatrix.lookAt({m_h_direct, m_v_direct, m_zoom}, {0, 0, 0}, {0, 1, 0}); // this is for given txt data
     } else {
-      pmvMatrix.lookAt({255, 255, m_zoom}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
+      pmvMatrix.lookAt({m_h_direct, m_v_direct, m_zoom}, {255, 255, 0}, {0, 1, 0}); // ( eye, center, up), up: which direction should be pointed to up
     }
   }
 
