@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <QThread>
 #include <QTextStream>
+#include <math.h>
 
 #include <QPainter>
 
@@ -300,6 +301,29 @@ void ViewWidget::saveData(QString filename)
   }
 }
 
+float ViewWidget::dist2(QVector<float> point1, QVector<float> point2)
+{
+  /* This function return the square euclidean distance between two points */
+  return qPow(point1[0], 2) + qPow(point1[1], 2) + qPow(point1[2], 2);
+}
+
+float ViewWidget::nearestDistance(QVector<float> point, QVector<float> centers)
+{
+  /* This function returns the diatance of the cluster centroid nearest to the
+      data point passed to this function */
+  float d;
+  float min_d{HUGE_VAL};
+
+  for (int i=0; i<m_k; ++i) {
+    d = dist2(point, centers.mid(i*3, 3));
+    if (d < min_d){
+      min_d = d;
+    }
+  }
+
+  return min_d;
+}
+
 void ViewWidget::initialCenters()
 {
   /*
@@ -312,7 +336,7 @@ void ViewWidget::initialCenters()
   qDebug() << "[INFO] Start to initialize centers for each cluster...";
 
   if (m_cent_method == 1) {
-    // 1 - random real:    any real number x, y location for the seed within the sample space
+    /* 1 - random real:    any real number x, y location for the seed within the sample space */
     // get range of the sample
     QVector<float> range_x {0, 0};
     QVector<float> range_y {0, 0};
@@ -339,7 +363,7 @@ void ViewWidget::initialCenters()
   }
 
   if (m_cent_method == 2) {
-    // 2 - random sample:  randomly select one of the observations
+    /* 2 - random sample:  randomly select one of the observations */
     for (int i=0; i<m_k; ++i){
       int idx = rand() % m_totalSample-1;
       m_centers.append(m_points.mid(idx*3, 3));
@@ -348,9 +372,42 @@ void ViewWidget::initialCenters()
   }
 
   if (m_cent_method == 3) {
-    // 3 - K-Means++ distance based (D^2) careful seeding
-    // TODO: implement K-Means++
+    /* 3 - K-Means++ distance based (D^2) careful seeding */
 
+    float * distances;
+    distances = (float*) malloc(sizeof(float) * m_totalSample);
+
+    // randomly select cluster centroids in data points
+    m_cent_method = 2;
+    initialCenters();
+    m_cent_method = 3;
+
+    // select rest of clusters
+    for (int i=1; i<m_k; ++i) {
+      /* for each data point find the nearest centroid, save its distance in the
+         distance array, then add it to the sum of total distance. */
+      float sum {0.0f};
+
+      for (int j=0; j<m_totalSample; ++j) {
+        distances[j] = nearestDistance(m_points.mid(j*3, 3), m_centers);
+        sum += distances[j];
+      }
+
+      // find a random distance within the span of the total distance.
+      sum = sum* rand()/(RAND_MAX-1);
+
+      // Assign the centroids, the point with the largest distance
+      for (int j=0; j<m_totalSample; ++j) {
+        sum -= distances[j];
+        if (sum <= 0) {
+          m_centers[i*3 + 0] = m_points[j*3 + 0];
+          m_centers[i*3 + 1] = m_points[j*3 + 1];
+          m_centers[i*3 + 2] = m_points[j*3 + 2];
+          break;
+        }
+      }
+    }
+    free(distances);
   }
 
   // Generate random color for centers
@@ -681,16 +738,25 @@ void ViewWidget::k_means_iter()
     }
   }
 
+
+  account++;
+  qDebug() << "[K-MEANS] iteration -" << account;
+
+  // check if account to given iteration
+  if (m_ifStep) {
+    if (account == m_num_iter) {
+      ttime->stop();
+      return;
+    }
+  }
   // check if centers are not move
   if (m_centers == centers_ref) {
-    qDebug() << "[INFO] K-Means Algorithm finished.";
+//    qDebug() << "[INFO] K-Means Algorithm finished.";
     ttime->stop();
     return;
   }
 
   centers_ref = m_centers;
-  account++;
-  qDebug() << "[K-MEANS] iteration -" << account;
 
   update();
 }

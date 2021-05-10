@@ -29,6 +29,9 @@ public: // *parent = nullptr
   void dataGeneration(int samplesPerCluster, int dim);
   void dataGenerateFromFile(QString filename);
   void saveData(QString filename);
+
+  float dist2(QVector<float> point1, QVector<float> point2);
+  float nearestDistance(QVector<float> point, QVector<float> centers);
   void initialCenters();
   void check_params(int k, QString distance_function, QString center_initial_method);
   int find_closest(QVector<float> point);
