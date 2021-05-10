@@ -41,9 +41,15 @@ public slots:
 
   void displayResult();
 
+  // step thru iterations
+  void previous_iteration();
+  void next_iteration();
+
 
 private:
   Ui::MainWindow *ui;
+
+  bool gostep = false;
 
   float the_zoom;
   float v_direct;

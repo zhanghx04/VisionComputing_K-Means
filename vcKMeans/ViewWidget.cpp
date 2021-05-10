@@ -70,6 +70,16 @@ float ViewWidget::energy() const
   return m_energy;
 }
 
+int ViewWidget::iter() const
+{
+  return account;
+}
+
+int ViewWidget::total_iter() const
+{
+  return m_num_iter;
+}
+
 
 float ViewWidget::angleForTime(qint64 msTime, float secondsPerRotation) const
 {
@@ -153,6 +163,15 @@ void ViewWidget::dataReceive(int k, int speed, int samplePerCluster, int dim,
    *    3. k-means++
    */
   doKmeans(m_k, m_dist_m, m_cent_m);
+}
+
+void ViewWidget::step_iteration(int num_iter)
+{
+  m_centers = record_centers[num_iter-1];
+  m_centerColors = record_centerColor[num_iter-1];
+  m_colors = record_pointColor[num_iter-1];
+  account = num_iter;
+  update();
 }
 
 void ViewWidget::samplePointsGenteration()
@@ -530,6 +549,7 @@ int ViewWidget::find_closest(QVector<float> point)
 
     dists.append(dist);
   }
+  m_energy += *std::min_element(dists.constBegin(), dists.constEnd());
 
   // return the index of minimum distance.
   return dists.indexOf(*std::min_element(dists.constBegin(), dists.constEnd()));
@@ -550,6 +570,17 @@ void ViewWidget::doKmeans(int k, QString distance_function, QString center_initi
 
   ttime->callOnTimeout(this, &ViewWidget::k_means_iter);
   ttime->start(m_timer);
+  m_speedTimer.start();
+}
+
+void ViewWidget::total_energy()
+{
+  // TODO energy
+  QVector<float> energys;
+  for (int i=0; i<m_k; ++i) {
+    float energy {0.0f};
+
+  }
 }
 
 void ViewWidget::setZoom(int zoom)
@@ -560,8 +591,6 @@ void ViewWidget::setZoom(int zoom)
     // Ensure zoom is 1 or greater
     m_zoom = qMax(1, zoom);
   }
-
-  qDebug() << m_zoom;
 }
 
 void ViewWidget::setTurn(float angle)
@@ -571,8 +600,6 @@ void ViewWidget::setTurn(float angle)
   } else {
     m_angle = angle - 360.0;
   }
-
-  qDebug() << m_angle;
 }
 
 void ViewWidget::setMove(float step, int direction)
@@ -754,6 +781,7 @@ void ViewWidget::k_means_iter()
 
   QVector<int> closest; // save the closest center idx for each point
 
+  m_energy = 0; // reset energy, the final time energey will not be cleared.
   // go through each point and find their closest center
   for (int i=0; i<m_totalSample; ++i) {
     int idx = find_closest(m_points.mid(i*3, 3));
@@ -801,15 +829,16 @@ void ViewWidget::k_means_iter()
   // check if account to given iteration
   if (m_ifStep) {
     if (account == m_num_iter) {
-      emit sendResult(11, 22);
+      m_num_iter = qMin(total_iter(), account);
+      m_speed = m_speedTimer.elapsed();
       ttime->stop();
       return;
     }
   }
   // check if centers are not move
   if (m_centers == centers_ref) {
-    emit sendResult(11, 22);
-//    qDebug() << "[INFO] K-Means Algorithm finished.";
+    m_num_iter = qMin(total_iter(), account);
+    m_speed = m_speedTimer.elapsed();
     ttime->stop();
     return;
   }

@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
   ViewWidget *viewWidget = new ViewWidget(this);
 
   // set range of speed and sample per cluster
+  ui->k_spinBox->setRange(2,99999);
   ui->timer_spinBox->setRange(100, 10000);
   ui->sample_spinBox->setRange(10, 1000);
 
@@ -46,6 +47,7 @@ void MainWindow::generate()
   // bot
   int num_iter = ui->iter_spinBox->value();
   bool if_step = ui->each_step_checkBox->checkState();
+  gostep = if_step;
 
   qDebug() << "Sending signal...";
 
@@ -65,8 +67,14 @@ void MainWindow::generate()
     }
   }
 
-  if (if_step) timer = 0;
+  if (if_step) {
+    timer = 0;
+    ui->cur_iter_lcdNumber->display(num_iter);
+  }
 
+  // disable buttons for stepping thru iteration
+  ui->prev_pushButton->setDisabled(!if_step);
+  ui->next_pushButton->setDisabled(true);
 
   ui->viewWidget->dataReceive(k, timer, samplePerCluster,
                    dim, dist_method, cent_method,
@@ -77,9 +85,24 @@ void MainWindow::generate()
 
 void MainWindow::displayResult()
 {
-  qDebug() << "displaying";
-  ui->speed_lineEdit->setText(QString::number(ui->viewWidget->speed()));
-  ui->energy_lineEdit->setText(QString::number(ui->viewWidget->energy()));
+  ui->speed_lineEdit->setText(QString::number(ui->viewWidget->speed()) + " ms");
+  ui->energy_lineEdit->setText(QString::number(ui->viewWidget->energy()) + " J");
+}
+
+void MainWindow::previous_iteration()
+{
+  ui->viewWidget->step_iteration(ui->viewWidget->iter()-1);
+  ui->prev_pushButton->setEnabled(ui->viewWidget->iter() != 1);
+  ui->next_pushButton->setEnabled(ui->viewWidget->iter() != ui->viewWidget->total_iter());
+  ui->cur_iter_lcdNumber->display(ui->viewWidget->iter());
+}
+
+void MainWindow::next_iteration()
+{
+  ui->viewWidget->step_iteration(ui->viewWidget->iter()+1);
+  ui->prev_pushButton->setEnabled(ui->viewWidget->iter() != 1);
+  ui->next_pushButton->setEnabled(ui->viewWidget->iter() != ui->viewWidget->total_iter());
+  ui->cur_iter_lcdNumber->display(ui->viewWidget->iter());
 }
 
 void MainWindow::zoomIn()

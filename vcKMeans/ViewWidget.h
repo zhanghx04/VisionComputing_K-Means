@@ -24,6 +24,8 @@ public: // *parent = nullptr
   float horizontal() const;
   float speed() const;
   float energy() const;
+  int iter() const;
+  int total_iter() const;
 
   float angleForTime(qint64 msTime, float secondsPerRotation) const;
 
@@ -44,6 +46,7 @@ public: // *parent = nullptr
   void k_means_iter();
   void doKmeans(int k, QString distance_function, QString center_initial_method);
 
+  void total_energy(); // calculate total energy
 
 public slots:
   void setZoom(int zoom);
@@ -55,9 +58,7 @@ public slots:
                    float point_size, float center_size,
                    QString filename, bool if_file_data, int num_iter, bool if_step,
                    float the_zoom, float v_direct, float h_direct);
-
-signals:
-  void sendResult(float speed, float energy);
+  void step_iteration(int num_iter);
 
 protected:
   void initializeGL() override;
@@ -89,6 +90,7 @@ private:
 
 
   QElapsedTimer m_fpsTimer;
+  QElapsedTimer m_speedTimer; // record total time used
   int m_frameCount;
   float m_fps;
 
@@ -120,8 +122,9 @@ private:
   QVector<float> m_centers;       // store centers
   QVector<float> m_centerColors;  // save centers' color
 
-  float m_speed = 15;
-  float m_energy = 22;
+  float m_speed = 0;
+  float m_energy = 0;
+  bool if_last_iter = false;
 
   // for storing info of each iteration
   QVector< QVector<float>> record_centers;

@@ -433,6 +433,22 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
+           <widget class="QLCDNumber" name="cur_iter_lcdNumber">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>5</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="prev_pushButton">
             <property name="text">
              <string>Previous</string>
@@ -776,6 +792,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>prev_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>previous_iteration()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>363</x>
+     <y>681</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>next_pushButton</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>next_iteration()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>512</x>
+     <y>681</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>zoomActualSize()</slot>
@@ -789,5 +837,7 @@
   <slot>goRight()</slot>
   <slot>goCenter()</slot>
   <slot>displayResult()</slot>
+  <slot>previous_iteration()</slot>
+  <slot>next_iteration()</slot>
  </slots>
 </ui>
