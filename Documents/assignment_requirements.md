@@ -31,12 +31,12 @@ Specifications for Part 1 include the following:
     - [ ] (Optional 5 Bonus points) Interactive - Let the user click at K locations and/or samples to select K initial seed points.
 5. Use Qt to visualize the data and K-Means clustering using 2D point rendering. User interaction features include:
     - [x] Visualize the evolution of the class membership of each point using colors for each iteration of K-Means loop and with cluster centers marked.
-    - [ ] Allow the user to step thru the animation one iteration at a time or using a speed control; otherwise the updates/animation will be too fast.
+    - [x] Allow the user to step thru the animation one iteration at a time or using a speed control; otherwise the updates/animation will be too fast.
     - [x] Allow zooming and panning to move around the 2D world.
     - [x] Allow the user to change the size of the 2D points.
 6. Draw the updated centroid (mean) of each cluster, then draw the updated class membership value/color for each observation sample.
     - [x] Allow the user to step thru the updates to interactively see which feature points change their class membership.
-    - [ ] Allow the user to go backward one step in the animation.
+    - [x] Allow the user to go backward one step in the animation.
 7. Animate/iterate until the class labels do not change or the maximum iterations has been reached.
 8. Read the feature points from an input file or auto generate synthetic test datasets with Gaussian distributions. The first line in the ASCII text file gives the value of N (number of feature points), D (dimensionality of the each feature vector), list of samples (ie feature vectors) one per line. Use several test cases:
     1. 15 dots in 2D (K=2 or K=3), 2D GMM (K=6); see slides (9 and 10) for the 15 dot example.
@@ -48,9 +48,9 @@ Specifications for Part 1 include the following:
     7. Synthetic dataset 3 overlapping clusters like in Slide 14.
     8. (Optional synthetic data used in K-Means++) See slides 12  and 13 for Norm-10 and Norm-25 sample dataset descriptions. For example, Synthetic dataset Norm-10 (K=10, D=5, N=10,000): 10 “real” centers uniformly from hypercube of side length 500. Add point from Gaussian with variance 1, centered at each center for well-separated “ideal” clusters. This would be useful for timing
 8. Compare the speed and energy value of K-Means for three cases:
-    - [ ] random real,
-    - [ ] random sample,
-    - [ ] K-Means++ initialization (D2 weighting).
+    - random real,
+    - random sample,
+    - K-Means++ initialization (D2 weighting).
 9. Include checks for degenerate conditions defined in the slides including Slide 15 (K=0, K=1, N=0, K>N, N identical points, sets of identical points).
 10. (Optional 5 Bonus points) Let the user click on a cluster mean and re-cluster all of these observations into K2 clusters (where K2 can be different from K)
 11. (Optional 5 Bonus points) When D>2 (or D>3) allow the user to select the two (or three) axes for display. If the number of features is very large then randomly select the 2 (or 3) feature dimensions to project onto (2-D or 3-D subspace) and display the clustering visualization. More informative subspaces are described below in the Optional Part 3.
