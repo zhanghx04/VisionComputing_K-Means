@@ -12,4 +12,4 @@ Author: Haoxiang Zhang
 <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" height=20> Notion: [Assignment Requirements (Old version)](https://www.notion.so/VC-Assignment-K-Means-Algorithm-e444e3c22eb04eb795fbd09a0948ab56)
 
 # Assignment Report
-<img src="https://www.freeiconspng.com/thumbs/report-icon/call-report-icon-3.png" height=20> [Report](Documents/assignment_report.md)
+<img src="https://www.freeiconspng.com/thumbs/report-icon/call-report-icon-3.png" height=20> [Report](Documents/vc_final_project_report_haoxiang_zhang.pdf)
