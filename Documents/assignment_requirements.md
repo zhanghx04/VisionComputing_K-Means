@@ -27,7 +27,7 @@ Specifications for Part 1 include the following:
 4. Support the following three methods for initializing the cluster centers. Allow the user to select one of the desired initialization methods.
     - [x] random real - any real number x, y location for the seed within the sample space,
     - [x] random sample - randomly select one of the observations,
-    - [ ] K-Means++ squared-distance based (D^2) careful seeding using a probability density function approach (see Urban Operations Research, Chapter 7.1 Simulating Probabilistic Events (https://web.mit.edu/urban_or_book/www/book/chapter7/7.1.3.html (Links to an external site.)),
+    - [x] K-Means++ squared-distance based (D^2) careful seeding using a probability density function approach (see Urban Operations Research, Chapter 7.1 Simulating Probabilistic Events (https://web.mit.edu/urban_or_book/www/book/chapter7/7.1.3.html (Links to an external site.)),
     - [ ] (Optional 5 Bonus points) Interactive - Let the user click at K locations and/or samples to select K initial seed points.
 5. Use Qt to visualize the data and K-Means clustering using 2D point rendering. User interaction features include:
     - [x] Visualize the evolution of the class membership of each point using colors for each iteration of K-Means loop and with cluster centers marked.
@@ -35,7 +35,7 @@ Specifications for Part 1 include the following:
     - [x] Allow zooming and panning to move around the 2D world.
     - [x] Allow the user to change the size of the 2D points.
 6. Draw the updated centroid (mean) of each cluster, then draw the updated class membership value/color for each observation sample.
-    - [ ] Allow the user to step thru the updates to interactively see which feature points change their class membership.
+    - [x] Allow the user to step thru the updates to interactively see which feature points change their class membership.
     - [ ] Allow the user to go backward one step in the animation.
 7. Animate/iterate until the class labels do not change or the maximum iterations has been reached.
 8. Read the feature points from an input file or auto generate synthetic test datasets with Gaussian distributions. The first line in the ASCII text file gives the value of N (number of feature points), D (dimensionality of the each feature vector), list of samples (ie feature vectors) one per line. Use several test cases:
