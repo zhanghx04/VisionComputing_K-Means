@@ -31,12 +31,12 @@ Specifications for Part 1 include the following:
     - [ ] (Optional 5 Bonus points) Interactive - Let the user click at K locations and/or samples to select K initial seed points.
 5. Use Qt to visualize the data and K-Means clustering using 2D point rendering. User interaction features include:
     - [x] Visualize the evolution of the class membership of each point using colors for each iteration of K-Means loop and with cluster centers marked.
-    - [ ] Allow the user to step thru the animation one iteration at a time or using a speed control; otherwise the updates/animation will be too fast.
+    - [x] Allow the user to step thru the animation one iteration at a time or using a speed control; otherwise the updates/animation will be too fast.
     - [x] Allow zooming and panning to move around the 2D world.
     - [x] Allow the user to change the size of the 2D points.
 6. Draw the updated centroid (mean) of each cluster, then draw the updated class membership value/color for each observation sample.
     - [x] Allow the user to step thru the updates to interactively see which feature points change their class membership.
-    - [ ] Allow the user to go backward one step in the animation.
+    - [x] Allow the user to go backward one step in the animation.
 7. Animate/iterate until the class labels do not change or the maximum iterations has been reached.
 8. Read the feature points from an input file or auto generate synthetic test datasets with Gaussian distributions. The first line in the ASCII text file gives the value of N (number of feature points), D (dimensionality of the each feature vector), list of samples (ie feature vectors) one per line. Use several test cases:
     1. 15 dots in 2D (K=2 or K=3), 2D GMM (K=6); see slides (9 and 10) for the 15 dot example.
