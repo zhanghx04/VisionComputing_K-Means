@@ -4,6 +4,8 @@ This is the repository for K-Means alogirthm in Vision Computing course assignme
 
 Author: Haoxiang Zhang
 
+IDE: Qt Creaator
+
 # Assignment Requirements
 <img src="https://img.icons8.com/plasticine/2x/arrow.png" height=20> [Updated Version Assignment Requirements](Documents/assignment_requirements.md)
 
