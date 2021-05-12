@@ -68,8 +68,6 @@ private slots:
   void updateTurntable();
 
 private:
-  QMainWindow *main;
-
   float m_zoom;
   float m_angle = 0.0f;
   float m_v_direct = 0.0f;

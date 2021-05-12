@@ -217,6 +217,10 @@ void ViewWidget::initialData()
   m_colors.clear();
   m_centers.clear();
   m_centerColors.clear();
+  centers_ref.clear();
+  record_centers.clear();
+  record_centerColor.clear();
+  record_pointColor.clear();
 
   account = 0;
   m_angle = 0.0f;
