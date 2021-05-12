@@ -76,6 +76,10 @@ void MainWindow::generate()
   ui->prev_pushButton->setDisabled(!if_step);
   ui->next_pushButton->setDisabled(true);
 
+  // turn
+  ui->turn_left_pushButton->setEnabled(dim == 3);
+  ui->turn_right_pushButton->setEnabled(dim == 3);
+
   ui->viewWidget->dataReceive(k, timer, samplePerCluster,
                    dim, dist_method, cent_method,
                    point_size, center_size,
