@@ -90,7 +90,7 @@ void MainWindow::generate()
 void MainWindow::displayResult()
 {
   ui->speed_lineEdit->setText(QString::number(ui->viewWidget->speed()) + " ms");
-  ui->energy_lineEdit->setText(QString::number(ui->viewWidget->energy()) + " J");
+  ui->energy_lineEdit->setText(QString::number(ui->viewWidget->energy()));
 }
 
 void MainWindow::previous_iteration()
