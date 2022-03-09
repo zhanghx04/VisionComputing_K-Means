@@ -299,7 +299,7 @@ void ViewWidget::dataGeneration(int samplesPerCluster, int dim)
 
 void ViewWidget::dataGenerateFromFile(QString filename)
 {
-  m_folder = "/Users/haoxiangzhang/Documents/GitHub/VisionComputing-KMeasn/vcKMeans/dataset/";
+  m_folder = "/Users/haoxiangzhang/Documents/GitHub/VisionComputing_K-Means/vcKMeans/dataset/";
 
   QFile inputFile(m_folder+filename);
   if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)){
